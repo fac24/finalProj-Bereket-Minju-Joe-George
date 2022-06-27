@@ -27,6 +27,14 @@ CREATE TABLE platform_exits (
   type INTEGER NOT NULL
 );
 
+CREATE TABLE users_feedback (
+  id SERIAL PRIMARY KEY,
+  platform_exits_id INTEGER REFERENCES platform_exits(id),
+  carriage INTEGER NOT NULL,
+  door INTEGER NOT NULL,
+  votes INTEGER NOT NULL
+);
+
 CREATE TABLE exit_interchanges (
   id SERIAL PRIMARY KEY,
   platform_exit_id INTEGER REFERENCES platform_exits(id) NOT NULL,
