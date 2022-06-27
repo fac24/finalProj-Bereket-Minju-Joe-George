@@ -29,6 +29,19 @@ const scrapingFunction = async () => {
   let myCounter = 1;
 
   myOuterLoop: for (let i = 0; i < apiResponseArray.length; i++) {
+    // Get rid of undefined stationNaptans
+    if (apiResponseArray[i].stationNaptan === undefined) {
+      continue myOuterLoop;
+    }
+
+    // A hard-coded exception for Hammersmith!
+    if (
+      apiResponseArray[i].commonName ===
+      "Hammersmith Stn / H&C and Circle Lines"
+    ) {
+      continue myOuterLoop;
+    }
+
     // Look at every item in the new array:
     for (let j = 0; j < stationData.length; j++) {
       // If the current item.stationNaptan is the same as the stationNaptan from the API:
@@ -47,13 +60,40 @@ const scrapingFunction = async () => {
     myCounter++;
   }
 
-  fs.writeFile("./stations.txt", JSON.stringify(stationData), (err) => {
+  /*
+
+  What we're aiming for:
+
+  INSERT INTO station (stationNaptan, commonName) VALUES
+    ('940GZZLUAMS', 'Amersham Underground Station'),
+    ('940GZZLUCAL', 'Chalfont & Latimer Underground Station'),
+    ... [all the rest of the stations go here] ...
+    ('940GZZNEUGST', 'Nine Elms Underground Station');
+
+  */
+
+  let sqlOutput = "INSERT INTO station (stationNaptan, commonName) VALUES\n";
+
+  stationData.forEach((station) => {
+    // We need to escape single quotes.
+    // Backslashes might work:
+    // const escapedCommonName = station.commonName.replaceAll("'", "\\'");
+    // But double quotes are probably better? :)
+    const escapedCommonName = station.commonName.replaceAll("'", "''");
+
+    sqlOutput += `('${station.stationNaptan}', '${escapedCommonName}'),\n`;
+  });
+
+  // Replace last comma with semi-colon
+  const newSqlOutput = sqlOutput.substring(0, sqlOutput.length - 2) + ";";
+
+  fs.writeFile("./database/stations.sql", newSqlOutput, (err) => {
     if (err) {
       console.error(err);
     }
     // file written successfully
+    console.log("wrote file");
   });
-  console.log("wrote file");
 };
 
 scrapingFunction();
