@@ -1,8 +1,5 @@
-// const fs = require("fs");
-// const fetch = require("node-fetch");
-
-// This requires having  "type": "module" in package.json which might break other stuff
-// So when we're done with this scraping script we either delete that or fix the problem properly :)
+// This file has the .mjs extension, which makes import work
+// (which seems to be required for node-fetch).
 import fs from "fs";
 import fetch from "node-fetch";
 
@@ -16,6 +13,8 @@ const BASE_URL = `https://api.tfl.gov.uk/`;
 
 const scrapingFunction = async () => {
   //const stationsURL = `${BASE_URL}StopPoint/Type/NaptanMetroStation?app_id=${APP_ID}&app_key=${API_KEY}`;
+
+  // We don't actually need an API key for this request, and we won't make this fetch often:
   const apiUrl = `https://api.tfl.gov.uk/StopPoint/Mode/tube`;
   const apiResponseArray = await fetch(apiUrl)
     .then((resolve) => resolve.json())
