@@ -12,6 +12,7 @@ export async function getServerSideProps(params) {
   if (isStepFree) {
     url += `&accessibilityPreference=noSolidStairs,noEscalators,stepFreeToVehicle,stepFreeToPlatform`;
   }
+  console.log(url);
   const apiResponseData = await fetch(url).then((resolve) => resolve.json());
   return { props: { apiResponseData: apiResponseData } };
 }

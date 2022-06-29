@@ -24,7 +24,10 @@ export default function useLocation(options) {
             );
             // add user location's station inside options as first row.
             if (station !== null) {
-              options.unshift({ value: 0, label: `📍${station}` });
+              options.unshift({
+                value: `${lat},${lon}`,
+                label: `📍 Your Location`,
+              });
             }
           }
         });
