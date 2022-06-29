@@ -3,9 +3,9 @@
 import fs from "fs";
 import fetch from "node-fetch";
 
-const API_KEY = process.env.API_KEY;
-const APP_ID = process.env.APP_ID;
-const BASE_URL = `https://api.tfl.gov.uk/`;
+// const API_KEY = process.env.API_KEY;
+// const APP_ID = process.env.APP_ID;
+// const BASE_URL = `https://api.tfl.gov.uk/`;
 
 // https://api.tfl.gov.uk/StopPoint/Type/NaptanMetroStation?app_id={{app_id}}&app_key={{app_key}}
 // https://api.tfl.gov.uk/StopPoint/Mode/tube?app_id=train-exits&app_key=21a14b6d9b1242bfb15985e4a78ede3d
@@ -28,16 +28,15 @@ const scrapingFunction = async () => {
   let myCounter = 1;
 
   myOuterLoop: for (let i = 0; i < apiResponseArray.length; i++) {
+    let commonName = apiResponseArray[i].commonName;
+
     // Get rid of undefined stationNaptans
     if (apiResponseArray[i].stationNaptan === undefined) {
       continue myOuterLoop;
     }
 
     // A hard-coded exception for Hammersmith!
-    if (
-      apiResponseArray[i].commonName ===
-      "Hammersmith Stn / H&C and Circle Lines"
-    ) {
+    if (commonName === "Hammersmith Stn / H&C and Circle Lines") {
       continue myOuterLoop;
     }
 
@@ -50,10 +49,13 @@ const scrapingFunction = async () => {
       }
     }
 
+    commonName = commonName.replace(" Underground Station", "");
+    commonName = commonName.replace(" Underground Stn", "");
+
     stationData.push({
       id: myCounter,
       stationNaptan: apiResponseArray[i].stationNaptan,
-      commonName: apiResponseArray[i].commonName,
+      commonName: commonName,
     });
 
     myCounter++;
@@ -71,7 +73,8 @@ const scrapingFunction = async () => {
 
   */
 
-  let sqlOutput = "INSERT INTO station (stationNaptan, commonName) VALUES\n";
+  let sqlOutput =
+    "BEGIN;\n\nINSERT INTO stations (station_naptan, common_name_short) VALUES\n";
 
   stationData.forEach((station) => {
     // We need to escape single quotes.
@@ -84,9 +87,12 @@ const scrapingFunction = async () => {
   });
 
   // Replace last comma with semi-colon
-  const newSqlOutput = sqlOutput.substring(0, sqlOutput.length - 2) + ";";
+  sqlOutput = sqlOutput.substring(0, sqlOutput.length - 2) + ";";
 
-  fs.writeFile("./database/stations.sql", newSqlOutput, (err) => {
+  // End transaction at end of .sql file
+  sqlOutput += "\n\nCOMMIT;";
+
+  fs.writeFile("./database/stations.sql", sqlOutput, (err) => {
     if (err) {
       console.error(err);
     }
