@@ -1,19 +1,70 @@
-import Head from "next/head";
-import Image from "next/image";
-import styles from "../styles/Home.module.css";
+// import App from "next/app.js";
+import Link from "next/link";
+import SearchStation from "../components/SearchStation.jsx";
+import { useState, useEffect } from "react";
 
-export default function Home() {
+const BASE_URL = `https://api.tfl.gov.uk/`;
+
+export default function Home({ APP_KEY, APP_ID }) {
+  const [lat, setLat] = useState(0);
+  const [lon, setLon] = useState(0);
+  const [station, setStation] = useState(null);
+
+  // when user click the pin then get user's location.
+  useEffect(() => {
+    fetch(
+      `${BASE_URL}StopPoint?lat=${lat}&lon=${lon}&stopTypes=NaptanMetroStation`
+    )
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Error");
+        }
+      })
+      .then((result) => {
+        if (result) {
+          //at space 4, user will get finsbury park as staiton naem.
+          setStation(result.stopPoints[0].commonName);
+        }
+      })
+      .catch((error) => console.log(error));
+  }, [lat, lon, setStation]);
+
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(location);
+    } else {
+      console.log("no geolocation");
+    }
+  };
+
+  const location = (position) => {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    setLat(latitude);
+    setLon(longitude);
+  };
+
   return (
-    <div>
-      <Head>
-        <title>Hello world!</title>
-      </Head>
+    <>
+      <form>
+        <label htmlFor="startStation">Select Starting Station</label>
+        <input type="text" name="startStation" id="startStation" />
+        <span onClick={getLocation}>📍</span>
+        <br />
+        <Link href="/map">
+          <a>Show me a map</a>
+        </Link>
+        <br />
+        <SearchStation startEndName={"endStation"} startEnd={"End"} />
+        <br />
+        <input type="checkbox" id="stepFree" name="stepFree" />
+        <label htmlFor="stepFree">Step Free?</label>
+        <br />
 
-      <main>
-        <h1 className="text-3xl font-bold underline">hello world!</h1>
-      </main>
-
-      <footer></footer>
-    </div>
+        <button type="submit">Find My Route</button>
+      </form>
+    </>
   );
 }
