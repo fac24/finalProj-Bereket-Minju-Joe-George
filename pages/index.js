@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SearchStation from "../components/SearchStation.jsx";
+import { useState } from "react";
 
 const API_KEY = process.env.API_KEY;
 const APP_ID = process.env.APP_ID;
@@ -15,8 +16,7 @@ export default function Home() {
   };
 
   const setStation = async (position) => {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
+    const { latitude, longitude } = position.coords;
     const stationsURL = `${BASE_URL}StopPoint?lat=${latitude}&lon=${longitude}&stopTypes=NaptanMetroStation&includeDistances=true&radius=1000&useStopPointHierarchy=true&modes=tube&app_id=${APP_ID}&app_key=${API_KEY}`;
     const stations = await fetch(stationsURL).then((result) => {
       return result.json();
