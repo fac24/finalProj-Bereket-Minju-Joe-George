@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-
 const baseJourneyURL = "https://api.tfl.gov.uk/Journey/JourneyResults/";
 
 export async function getServerSideProps(params) {
@@ -14,18 +12,12 @@ export async function getServerSideProps(params) {
   if (isStepFree) {
     url += `&accessibilityPreference=noSolidStairs,noEscalators,stepFreeToVehicle,stepFreeToPlatform`;
   }
-  console.log(url);
-  return { props: { url: url } };
+  const apiResponseData = await fetch(url).then((resolve) => resolve.json());
+  return { props: { apiResponseData: apiResponseData } };
 }
 
-export default function NewRoute({ url }) {
-  const [apiResponseData, setApiResponseData] = useState(null);
-
-  useEffect(() => {
-    fetch(url)
-      .then((resolve) => resolve.json())
-      .then((resolve) => setApiResponseData(resolve));
-  }, [url]);
+export default function NewRoute({ apiResponseData }) {
+  //const [apiResponseData, setApiResponseData] = useState(null);
 
   /*
 
