@@ -3,11 +3,14 @@ BEGIN;
 DROP TABLE IF EXISTS stations, lines, platforms, platform_exits, exit_interchanges, station_lines CASCADE;
 
 CREATE TABLE stations (
-  id SERIAL PRIMARY KEY,
-  station_naptan TEXT NOT NULL,
+  -- Given we've narrowed scope to TfL only, we don't need our own id column.
+  -- (But if this was a real app, we'd probably want it to handle situations where
+  -- external datasets, APIs etc. don't provide a uid for stations.)
+  -- id SERIAL PRIMARY KEY,
+  station_naptan TEXT PRIMARY KEY NOT NULL,
   common_name_short TEXT NOT NULL
 );
-
+ 
 -- CREATE TABLE lines (
 --   id SERIAL PRIMARY KEY,
 --   name TEXT NOT NULL
