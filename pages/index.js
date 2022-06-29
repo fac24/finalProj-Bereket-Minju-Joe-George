@@ -1,39 +1,43 @@
-// import App from "next/app.js";
 import Link from "next/link";
-import SearchStation from "../components/SearchStation.jsx";
-import { useState, useEffect } from "react";
+import Select from "react-select";
+import useLocation from "../components/Hooks/useLocation";
 
 const BASE_URL = `https://api.tfl.gov.uk/`;
 
-export default function Home({ APP_KEY, APP_ID }) {
-  const [lat, setLat] = useState(0);
-  const [lon, setLon] = useState(0);
-  const [station, setStation] = useState(null);
+// Delete when addded model js
+const stationData = [
+  { station_naptan: "940GZZLUACY", common_name_short: "Archway" },
+  { station_naptan: "940GZZLUEPG", common_name_short: "Epping" },
+  { station_naptan: "940GZZLUFPK", common_name_short: "Finsbury Park" },
+  { station_naptan: "940GZZLUBMY", common_name_short: "Bermondsey" },
+];
 
-  // when user click the pin then get user's location.
-  useEffect(() => {
-    fetch(
-      `${BASE_URL}StopPoint?lat=${lat}&lon=${lon}&stopTypes=NaptanMetroStation`
-    )
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error("Error");
-        }
-      })
-      .then((result) => {
-        if (result) {
-          //at space 4, user will get finsbury park as staiton naem.
-          setStation(result.stopPoints[0].commonName);
-        }
-      })
-      .catch((error) => console.log(error));
-  }, [lat, lon, setStation]);
+export async function getServerSideProps() {
+  // #######GET MODEL.JS TO GET THE STATIONDATA
+
+  const options = stationData.map((station) => {
+    return { value: station.station_naptan, label: station.common_name_short };
+  });
+  return { props: { options: options } };
+}
+
+export default function Home({
+  APP_KEY,
+  APP_ID,
+  setSelectedStart,
+  selectedStart,
+  setSelectedEnd,
+  selectedEnd,
+  setStepFree,
+  options,
+}) {
+  const [setLat, setLon] = useLocation(options);
 
   const getLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(location);
+      document.querySelector("span").textContent =
+        "your nearest station is added.";
     } else {
       console.log("no geolocation");
     }
@@ -48,18 +52,36 @@ export default function Home({ APP_KEY, APP_ID }) {
 
   return (
     <>
-      <form>
+      <form action="/new-route">
         <label htmlFor="startStation">Select Starting Station</label>
-        <input type="text" name="startStation" id="startStation" />
+        <Select
+          id="startStation"
+          name="startStation"
+          defaultValue={selectedStart}
+          onChange={setSelectedStart}
+          options={options}
+        />
         <span onClick={getLocation}>📍</span>
         <br />
         <Link href="/map">
           <a>Show me a map</a>
         </Link>
         <br />
-        <SearchStation startEndName={"endStation"} startEnd={"End"} />
+        <label htmlFor="endStation">Select Ending Station</label>
+        <Select
+          id="endStation"
+          name="endStation"
+          defaultValue={selectedEnd}
+          onChange={setSelectedEnd}
+          options={options}
+        />
         <br />
-        <input type="checkbox" id="stepFree" name="stepFree" />
+        <input
+          type="checkbox"
+          id="stepFree"
+          name="stepFree"
+          onChange={(event) => setStepFree(event.target.value)}
+        />
         <label htmlFor="stepFree">Step Free?</label>
         <br />
 

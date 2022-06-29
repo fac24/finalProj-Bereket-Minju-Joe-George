@@ -1,16 +1,31 @@
 import { useState, useEffect } from "react";
 
-const url =
-  "https://api.tfl.gov.uk/Journey/JourneyResults/940GZZLUFPK/to/940GZZLUBMY?mode=tube,dlr,overground";
+const baseJourneyURL = "https://api.tfl.gov.uk/Journey/JourneyResults/";
 
-export default function NewRoute() {
+export async function getServerSideProps(params) {
+  const formData = params.query;
+  const isStepFree = formData.stepFree || null;
+  const urlParams = {
+    startStation: formData.startStation,
+    endStation: formData.endStation,
+    stepFree: isStepFree,
+  };
+  let url = `${baseJourneyURL}${urlParams.startStation}/to/${urlParams.endStation}?mode=tube,dlr,overground`;
+  if (isStepFree) {
+    url += `&accessibilityPreference=noSolidStairs,noEscalators,stepFreeToVehicle,stepFreeToPlatform`;
+  }
+  console.log(url);
+  return { props: { url: url } };
+}
+
+export default function NewRoute({ url }) {
   const [apiResponseData, setApiResponseData] = useState(null);
 
   useEffect(() => {
     fetch(url)
       .then((resolve) => resolve.json())
       .then((resolve) => setApiResponseData(resolve));
-  }, []);
+  }, [url]);
 
   /*
 
@@ -23,6 +38,9 @@ export default function NewRoute() {
   */
 
   if (apiResponseData !== null) {
+    if (apiResponseData.httpStatusCode === 404)
+      return <h2>No Journeys Available</h2>;
+
     return (
       <>
         <h2>
@@ -37,7 +55,7 @@ export default function NewRoute() {
                   // Use the line name as hidden text for a11y
                   // Maybe use a table so we can vertically align interchanges and lines.
                   <div key={index}>
-                    {leg.routeOptions[0].lineIdentifier.name}
+                    {leg.routeOptions[0].lineIdentifier?.name}
                   </div>
                 ))}
               </div>
