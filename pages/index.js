@@ -8,6 +8,7 @@ const BASE_URL = `https://api.tfl.gov.uk/`;
 export default function Home({ APP_KEY, APP_ID }) {
   const [lat, setLat] = useState(0);
   const [lon, setLon] = useState(0);
+  const [station, setStation] = useState(null);
 
   // when user click the pin then get user's location.
   useEffect(() => {
@@ -24,11 +25,11 @@ export default function Home({ APP_KEY, APP_ID }) {
       .then((result) => {
         if (result) {
           //at space 4, user will get finsbury park as staiton naem.
-          let stationName = result.stopPoints[0].commonName;
+          setStation(result.stopPoints[0].commonName);
         }
       })
       .catch((error) => console.log(error));
-  }, [lat, lon]);
+  }, [lat, lon, setStation]);
 
   const getLocation = () => {
     if (navigator.geolocation) {
