@@ -11,7 +11,7 @@ import fetch from "node-fetch";
 // https://api.tfl.gov.uk/StopPoint/Mode/tube?app_id=train-exits&app_key=21a14b6d9b1242bfb15985e4a78ede3d
 // https://api.tfl.gov.uk/StopPoint/Meta/Modes?app_id=train-exits&app_key=21a14b6d9b1242bfb15985e4a78ede3d
 
-const scrapingFunction = async () => {
+const scrapeTubeStations = async () => {
   //const stationsURL = `${BASE_URL}StopPoint/Type/NaptanMetroStation?app_id=${APP_ID}&app_key=${API_KEY}`;
 
   // We don't actually need an API key for this request, and we won't make this fetch often:
@@ -97,8 +97,45 @@ const scrapingFunction = async () => {
       console.error(err);
     }
     // file written successfully
-    console.log("wrote file");
+    console.log("Successfully wrote stations.sql");
   });
 };
 
-scrapingFunction();
+const scrapeTubeLines = async () => {
+  const apiResponseArray = await fetch(
+    "https://api.tfl.gov.uk/Line/Mode/tube"
+  ).then((resolve) => resolve.json());
+
+  const lineData = [];
+
+  apiResponseArray.forEach((element) => {
+    lineData.push({
+      id: element.id,
+      name: element.name,
+    });
+  });
+
+  let sqlOutput = "BEGIN;\n\nINSERT INTO lines (id, name) VALUES\n";
+
+  lineData.forEach((line) => {
+    sqlOutput += `('${line.id}', '${line.name}'),\n`;
+  });
+
+  // Replace last comma with semi-colon
+  sqlOutput = sqlOutput.substring(0, sqlOutput.length - 2) + ";";
+
+  // End transaction at end of .sql file
+  sqlOutput += "\n\nCOMMIT;";
+
+  fs.writeFile("./database/lines.sql", sqlOutput, (err) => {
+    if (err) {
+      console.error(err);
+    }
+    // file written successfully
+    console.log("Successfully wrote lines.sql");
+  });
+};
+
+scrapeTubeStations();
+
+scrapeTubeLines();
