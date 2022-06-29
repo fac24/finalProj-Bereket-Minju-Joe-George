@@ -1,0 +1,26 @@
+#! /bin/sh
+
+# stop script when an error occurs
+set -e
+
+# Import .env file so we have the DATABASE_NAME variable
+#
+# Note: don't try to import it if the GITHUB_ACTIONS env var is set!
+# That means we're in a GitHub Actions (CI) runner, and so there's no .env file.
+# (In our GitHub Actions workflows, we set environment variables in the workflow YML files directly.)
+# https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
+#
+if [ -z "$GITHUB_ACTIONS" ]
+then
+  . "./.env.development.local"
+fi
+
+if [ -z "$DATABASE_URL" ]
+then
+  echo "\$DATABASE_URL is empty!"
+else
+  echo "Found \$DATABASE_URL in .env.development.local"
+  echo "Now executing database init file in psql..."
+  psql $DATABASE_URL -q -f "./database/init.sql"
+  echo "Populated database tables"
+fi
