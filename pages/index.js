@@ -5,30 +5,30 @@ import { useState, useEffect } from "react";
 
 const BASE_URL = `https://api.tfl.gov.uk/`;
 
-// i don't know why but API_KEY include API_KEY & APP_ID
-export default function Home(API_KEY) {
-  // when user click the pin then get user's location.
-  const KEY = API_KEY.API_KEY;
-  const ID = API_KEY.APP_ID;
-
+export default function Home({ APP_KEY, APP_ID }) {
   const [lat, setLat] = useState(0);
   const [lon, setLon] = useState(0);
-  console.log(lat, lon);
-  fetch(
-    `${BASE_URL}StopPoint/mode/tube?lat=${lat}&lon=${lon}&app_id=${ID}&app_key=${KEY}`
-  )
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        // error
-      }
-    })
-    .then((result) => {
-      if (result) {
-        console.log(result.stopPoints[1].commonName);
-      }
-    });
+
+  // when user click the pin then get user's location.
+  useEffect(() => {
+    fetch(
+      `${BASE_URL}StopPoint?lat=${lat}&lon=${lon}&stopTypes=NaptanMetroStation`
+    )
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Error");
+        }
+      })
+      .then((result) => {
+        if (result) {
+          //at space 4, user will get finsbury park as staiton naem.
+          let stationName = result.stopPoints[0].commonName;
+        }
+      })
+      .catch((error) => console.log(error));
+  }, [lat, lon]);
 
   const getLocation = () => {
     if (navigator.geolocation) {
