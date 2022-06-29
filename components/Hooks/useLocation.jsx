@@ -7,29 +7,28 @@ export default function useLocation(options) {
 
   // when user click the pin then get user's location.
   useEffect(() => {
-    fetch(
-      `${BASE_URL}StopPoint?lat=${lat}&lon=${lon}&stopTypes=NaptanMetroStation`
-    )
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error("Error");
-        }
-      })
-      .then((result) => {
-        if (result) {
-          //at space 4, user will get finsbury park as staiton naem.
-          setStation(
-            result.stopPoints[0].commonName.replace("Underground Station", "")
-          );
-          // add user location's station inside options as first row.
-          if (station !== null) {
-            options.unshift({ value: 0, label: `📍${station}` });
+    if (lat !== 0 && lon !== 0) {
+      fetch(
+        `${BASE_URL}StopPoint?lat=${lat}&lon=${lon}&stopTypes=NaptanMetroStation`
+      )
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
           }
-        }
-      })
-      .catch((error) => console.log(error));
+        })
+        .then((result) => {
+          if (result) {
+            //at space 4, user will get finsbury park as staiton naem.
+            setStation(
+              result.stopPoints[0].commonName.replace("Underground Station", "")
+            );
+            // add user location's station inside options as first row.
+            if (station !== null) {
+              options.unshift({ value: 0, label: `📍${station}` });
+            }
+          }
+        });
+    }
   }, [lat, lon, station, setStation, options]);
 
   return [setLat, setLon];
