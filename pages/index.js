@@ -1,27 +1,48 @@
+// import App from "next/app.js";
 import Link from "next/link";
 import SearchStation from "../components/SearchStation.jsx";
+import { useState, useEffect } from "react";
 
-const API_KEY = process.env.API_KEY;
-const APP_ID = process.env.APP_ID;
 const BASE_URL = `https://api.tfl.gov.uk/`;
 
-export default function Home() {
+// i don't know why but API_KEY include API_KEY & APP_ID
+export default function Home(API_KEY) {
+  // when user click the pin then get user's location.
+  const KEY = API_KEY.API_KEY;
+  const ID = API_KEY.APP_ID;
+
+  const [lat, setLat] = useState(0);
+  const [lon, setLon] = useState(0);
+  console.log(lat, lon);
+  fetch(
+    `${BASE_URL}StopPoint/mode/tube?lat=${lat}&lon=${lon}&app_id=${ID}&app_key=${KEY}`
+  )
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        // error
+      }
+    })
+    .then((result) => {
+      if (result) {
+        console.log(result.stopPoints[1].commonName);
+      }
+    });
+
   const getLocation = () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(setStation);
+      navigator.geolocation.getCurrentPosition(location);
     } else {
       console.log("no geolocation");
     }
   };
 
-  const setStation = async (position) => {
+  const location = (position) => {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
-    const stationsURL = `${BASE_URL}StopPoint?lat=${latitude}&lon=${longitude}&stopTypes=NaptanMetroStation&includeDistances=true&radius=1000&useStopPointHierarchy=true&modes=tube&app_id=${APP_ID}&app_key=${API_KEY}`;
-    const stations = await fetch(stationsURL).then((result) => {
-      return result.json();
-    });
-    console.log(stations);
+    setLat(latitude);
+    setLon(longitude);
   };
 
   return (
