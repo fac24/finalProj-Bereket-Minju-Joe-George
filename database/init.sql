@@ -58,6 +58,9 @@ CREATE TABLE exit_interchanges (
   dest_platform_id INTEGER REFERENCES platforms (id) NOT NULL
 );
 
+CREATE TABLE sessions (
+  sid TEXT PRIMARY KEY
+);
 
 -- CREATE TABLE users_feedback (
 --   id SERIAL PRIMARY KEY,
