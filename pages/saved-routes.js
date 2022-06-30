@@ -1,4 +1,6 @@
 import Cookies from "cookies";
+import { getSavedRoutes } from "../database/model";
+// import { createSession, getSession, getSavedRoutes } from "../database/model";
 
 export async function getServerSideProps({ req, res }) {
   const cookieSigningKeys = [process.env.COOKIE_SECRET];
@@ -8,19 +10,22 @@ export async function getServerSideProps({ req, res }) {
   // Get a cookie
   const sidCookie =
     cookies.get("sid", { signed: true, sameSite: "strict" }) || null;
-
+  let savedRoutes;
   if (!sidCookie) {
     // Set a cookie
-    cookies.set("sid", "hello world", { signed: true });
+    cookies.set("sid", "anotherfakesessionid", { signed: true });
+  } else {
+    savedRoutes = await getSavedRoutes(sidCookie);
   }
-
-  return { props: { sidCookie: sidCookie } };
+  return { props: { savedRoutes } };
 }
 
-export default function SavedRoutes(props) {
+export default function SavedRoutes({ savedRoutes }) {
   return (
-    <>
-      <p>Saved routes!</p>
-    </>
+    <ul>
+      {savedRoutes.map((route, index) => (
+        <li key={index}>{route.name}</li>
+      ))}
+    </ul>
   );
 }

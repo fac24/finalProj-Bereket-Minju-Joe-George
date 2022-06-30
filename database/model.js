@@ -6,14 +6,22 @@ async function getAllStations() {
   return allStations.rows;
 }
 
+async function createSession(sid) {
+  const CREATE_SESSION = `INSERT INTO sessions (sid) VALUES ($1) RETURNING sid;`;
+  const session = db.query(CREATE_SESSION, [sid]);
+  return session.rows[0].sid;
+}
+
 async function getSession(sid) {
   const SELECT_SESSION = `SELECT * FROM sessions WHERE sid = $1;`;
   const session = await db.query(SELECT_SESSION, [sid]);
   return session.rows[0];
 }
 
-async function getSavedRoute(sid) {
-  const SELECT_ROUTE = `SELECT sid,name FROM session_routes LEFT JOIN routes ON session_routes.route_id = routes.id WHERE sid = $1;`;
+async function getSavedRoutes(sid) {
+  const SELECT_ROUTES = `SELECT name FROM session_routes LEFT JOIN routes ON session_routes.route_id = routes.id WHERE sid = $1;`;
+  const routes = await db.query(SELECT_ROUTES, [sid]);
+  return routes.rows;
 }
 
 /*
@@ -38,5 +46,7 @@ async function getSavedRoute(sid) {
 
 module.exports = {
   getAllStations,
+  createSession,
   getSession,
+  getSavedRoutes,
 };
