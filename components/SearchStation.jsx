@@ -10,7 +10,11 @@ const debounce = (func, timeout = 300) => {
   };
 };
 
-export default function SearchStation({ startEndName, startEnd }) {
+export default function SearchStation({
+  startEndName,
+  startEnd,
+  setEndStation,
+}) {
   const [searchOptions, setSearchOptions] = useSearchStation();
 
   const processChange = debounce((event) => setSearchOptions(event));
@@ -21,7 +25,10 @@ export default function SearchStation({ startEndName, startEnd }) {
         type="text"
         name={startEndName}
         id={startEndName}
-        onChange={(event) => processChange(event)}
+        onChange={(event) => {
+          setEndStation(event.target.value);
+          return processChange(event);
+        }}
       />
       <ul>
         {searchOptions.map((station, index) => (
