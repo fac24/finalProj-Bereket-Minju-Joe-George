@@ -11,18 +11,12 @@ const debounce = (func, timeout = 300) => {
   };
 };
 
-<<<<<<< HEAD
-export default function SearchStation({ startEndName, startEnd }) {
-  // function searching station start and end
-  const [searchOptions, setSearchOptions] = useSearchStation(); // setting states
-=======
 export default function SearchStation({
   startEndName,
   startEnd,
   setEndStation,
 }) {
   const [searchOptions, setSearchOptions] = useSearchStation();
->>>>>>> 21f71519e398dd24641019f649a09e64c872730c
 
   const processChange = debounce((event) => setSearchOptions(event));
   return (

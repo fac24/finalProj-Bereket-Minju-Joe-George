@@ -6,17 +6,65 @@ async function getAllStations() {
   return allStations.rows;
 }
 
-
-  // Get data from db to then send as props
-  // - Platform name - line
-  // - where to stand for next arrival point
-  // - Station name
-  // - 
+// Get data from db to then send as props
+// - Platform name - line
+// - where to stand for next arrival point
+// - Station name
+// -
 
 async function getRouteByIndividualStopIds(stopIds) {
-  const SELECT_ROUTE_DATA = ``
-  const routeData = await db.query(SELECT_ROUTE_DATA, stopIds)
-  return routeData.rows
+  const arrivalPoints = stopIds.filter((stopId, index) => index % 2 === 1);
+  const departurePoints = stopIds.filter((stopId, index) => index % 2 === 0);
+  console.log(arrivalPoints[0]);
+  const SELECT_PLATFORM_EXIT_ID = /* SQL */ `SELECT
+    platform_exit_id FROM exit_interchanges WHERE dest_platform_id = (SELECT id from platforms WHERE individual_stop_id = $1)`;
+  const query1 = await Promise.all(
+    departurePoints.map((departurePoint) =>
+      db
+        .query(SELECT_PLATFORM_EXIT_ID, [departurePoint])
+        .then((res) => res.rows)
+    )
+  );
+  const SELECT_PLATFORM_EXITS = `SELECT * FROM platform_exits WHERE platform_id = (SELECT id FROM platforms WHERE individual_stop_id = $1)`;
+  let SELECT_INTERCHANGE;
+  let SELECT_EXIT;
+  const query2 = await Promise.all(
+    arrivalPoints
+      .map((arrivalPoint, index, arr) => {
+        if (index !== arr.length - 1) {
+          SELECT_INTERCHANGE = SELECT_PLATFORM_EXITS + `AND id = $2`;
+          return [arrivalPoint, query1[index + 1][0].platform_exit_id];
+        } else {
+          SELECT_EXIT = SELECT_PLATFORM_EXITS + `AND type = $2`;
+          return [arrivalPoint, 0];
+        }
+      })
+      .map((arrivalPoint, index) => {
+        if (arrivalPoints.length === index + 1) {
+          return db
+            .query(SELECT_EXIT, [arrivalPoint[0], arrivalPoint[1]])
+            .then((res) => res.rows);
+        } else {
+          return db
+            .query(SELECT_INTERCHANGE, [arrivalPoint[0], arrivalPoint[1]])
+            .then((res) => res.rows);
+        }
+      })
+  );
+
+  return query2;
+}
+
+async function getStationNameByIndividualStopIds(stopIds) {
+  const SELECT_STATION_NAMES = `SELECT common_name_short FROM stations WHERE station_naptan = (SELECT station_naptan FROM platforms WHERE individual_stop_id = $1)`;
+  const stationNames = await Promise.all(
+    stopIds.map((stopId) => {
+      return db
+        .query(SELECT_STATION_NAMES, [stopId])
+        .then((res) => res.rows[0]);
+    })
+  );
+  return stationNames;
 }
 
 /*
@@ -41,4 +89,6 @@ async function getRouteByIndividualStopIds(stopIds) {
 
 module.exports = {
   getAllStations,
+  getRouteByIndividualStopIds,
+  getStationNameByIndividualStopIds,
 };
