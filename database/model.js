@@ -24,6 +24,12 @@ async function getSavedRoutes(sid) {
   return routes.rows;
 }
 
+async function getStation(stationNaptan) {
+  const SELECT_STATION = `SELECT common_name_short FROM stations WHERE station_naptan=$1;`;
+  const station = await db.query(SELECT_STATION, [stationNaptan]);
+  return station.rows[0];
+}
+
 /*
 
   Kinda pseudo-code about how to do the all-important exits query based on TfL's journey planning API response:
@@ -49,4 +55,5 @@ module.exports = {
   createSession,
   getSession,
   getSavedRoutes,
+  getStation,
 };

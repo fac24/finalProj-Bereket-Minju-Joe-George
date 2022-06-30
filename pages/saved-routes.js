@@ -49,7 +49,15 @@ export default function SavedRoutes({ savedRoutes }) {
     return (
       <ul>
         {savedRoutes.map((route, index) => (
-          <li key={index}>{JSON.stringify(route.data)}</li>
+          <li key={index}>
+            <ol>
+              {Object.entries(route.data).map(([key, value], index) => (
+                <li key={index}>
+                  {key}: {value}
+                </li>
+              ))}
+            </ol>
+          </li>
         ))}
       </ul>
     );
