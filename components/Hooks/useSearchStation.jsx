@@ -5,20 +5,20 @@ const stationData = [
   { commonName: "Bermondsey" },
 ];
 
-export default function useSearchStation() {
+export default function useSearchStation() {  // function to let user search station
   const [search, setSearch] = useState("");
-  const [filteredStations, setFilteredStations] = useState([]);
+  const [filteredStations, setFilteredStations] = useState([]); //  filter stations based on search term 
   const stations = stationData.flatMap((station) => station.commonName);
 
   const setSearchOptions = (event) => {
-    event.preventDefault();
-    const searchTerm = event.target.value;
+    event.preventDefault(); // keep form from submitting
+    const searchTerm = event.target.value;  // input from user 
     const filterOptions = stations.filter((station) =>
-      station.toLowerCase().includes(searchTerm.toLowerCase())
+      station.toLowerCase().includes(searchTerm.toLowerCase()) // filter search to include lower case
     );
     setSearch(searchTerm);
     setFilteredStations(filterOptions);
   };
 
-  return [filteredStations, setSearchOptions];
+  return [filteredStations, setSearchOptions];  // return values to be used when searching station 
 }

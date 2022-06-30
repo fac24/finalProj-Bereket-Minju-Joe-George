@@ -6,12 +6,12 @@ import { useState, useEffect } from "react";
 const BASE_URL = `https://api.tfl.gov.uk/`;
 
 export default function Home({ APP_KEY, APP_ID }) {
-  const [lat, setLat] = useState(0);
-  const [lon, setLon] = useState(0);
-  const [station, setStation] = useState(null);
+  const [lat, setLat] = useState(0); // keep the state of latitude 
+  const [lon, setLon] = useState(0); // keep thew state of longitude to update incase of any changes
+  const [station, setStation] = useState(null); // station state set to null initially  
 
   // when user click the pin then get user's location.
-  useEffect(() => {
+  useEffect(() => {  // useEffect to fetch and maintain updated location information relative to the state assigned to it initially
     fetch(
       `${BASE_URL}StopPoint?lat=${lat}&lon=${lon}&stopTypes=NaptanMetroStation`
     )
@@ -29,18 +29,18 @@ export default function Home({ APP_KEY, APP_ID }) {
         }
       })
       .catch((error) => console.log(error));
-  }, [lat, lon, setStation]);
+  }, [lat, lon, setStation]);  // when this bit changes the code is re-run to reflect the new updated state to give us updated location
 
-  const getLocation = () => {
+  const getLocation = () => {  // function to get user location 
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(location);
+      navigator.geolocation.getCurrentPosition(location); // using the navigator.geolocation taking the location function as the parameter
     } else {
       console.log("no geolocation");
     }
   };
 
-  const location = (position) => {
-    const latitude = position.coords.latitude;
+  const location = (position) => {  // function to get user location taking position as the parameter 
+    const latitude = position.coords.latitude; // current position based on latitude and longitude coordinates
     const longitude = position.coords.longitude;
     setLat(latitude);
     setLon(longitude);

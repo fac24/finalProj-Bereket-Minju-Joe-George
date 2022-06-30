@@ -1,6 +1,7 @@
 import useSearchStation from "./Hooks/useSearchStation";
 
 const debounce = (func, timeout = 300) => {
+  // look up?? auto-complete function
   let timer;
   return (...args) => {
     clearTimeout(timer);
@@ -11,7 +12,8 @@ const debounce = (func, timeout = 300) => {
 };
 
 export default function SearchStation({ startEndName, startEnd }) {
-  const [searchOptions, setSearchOptions] = useSearchStation();
+  // function searching station start and end
+  const [searchOptions, setSearchOptions] = useSearchStation(); // setting states
 
   const processChange = debounce((event) => setSearchOptions(event));
   return (
