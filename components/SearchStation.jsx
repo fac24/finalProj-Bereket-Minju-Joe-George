@@ -11,9 +11,18 @@ const debounce = (func, timeout = 300) => {
   };
 };
 
+<<<<<<< HEAD
 export default function SearchStation({ startEndName, startEnd }) {
   // function searching station start and end
   const [searchOptions, setSearchOptions] = useSearchStation(); // setting states
+=======
+export default function SearchStation({
+  startEndName,
+  startEnd,
+  setEndStation,
+}) {
+  const [searchOptions, setSearchOptions] = useSearchStation();
+>>>>>>> 21f71519e398dd24641019f649a09e64c872730c
 
   const processChange = debounce((event) => setSearchOptions(event));
   return (
@@ -23,7 +32,10 @@ export default function SearchStation({ startEndName, startEnd }) {
         type="text"
         name={startEndName}
         id={startEndName}
-        onChange={(event) => processChange(event)}
+        onChange={(event) => {
+          setEndStation(event.target.value);
+          return processChange(event);
+        }}
       />
       <ul>
         {searchOptions.map((station, index) => (
