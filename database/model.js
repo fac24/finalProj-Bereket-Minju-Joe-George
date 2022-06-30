@@ -8,7 +8,7 @@ async function getAllStations() {
 
 async function createSession(sid) {
   const CREATE_SESSION = `INSERT INTO sessions (sid) VALUES ($1) RETURNING sid;`;
-  const session = db.query(CREATE_SESSION, [sid]);
+  const session = await db.query(CREATE_SESSION, [sid]);
   return session.rows[0].sid;
 }
 
