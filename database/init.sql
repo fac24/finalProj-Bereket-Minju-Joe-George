@@ -1,6 +1,6 @@
 BEGIN;
 
-DROP TABLE IF EXISTS stations, lines, platforms, platform_line, platform_exits, exit_interchanges CASCADE;
+DROP TABLE IF EXISTS stations, lines, platforms, platform_line, platform_exits, exit_interchanges, sessions, routes, session_routes CASCADE;
 
 -- For now, stations will be populated by our script scraping TfL API.
 CREATE TABLE stations (
@@ -60,6 +60,16 @@ CREATE TABLE exit_interchanges (
 
 CREATE TABLE sessions (
   sid TEXT PRIMARY KEY
+);
+
+CREATE TABLE routes (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL
+);
+
+CREATE TABLE  session_routes (
+  sid TEXT REFERENCES sessions (sid) NOT NULL,
+  route_id INTEGER REFERENCES routes (id) NOT NULL
 );
 
 -- CREATE TABLE users_feedback (

@@ -6,6 +6,16 @@ async function getAllStations() {
   return allStations.rows;
 }
 
+async function getSession(sid) {
+  const SELECT_SESSION = `SELECT * FROM sessions WHERE sid = $1;`;
+  const session = await db.query(SELECT_SESSION, [sid]);
+  return session.rows[0];
+}
+
+async function getSavedRoute(sid) {
+  const SELECT_ROUTE = `SELECT sid,name FROM session_routes LEFT JOIN routes ON session_routes.route_id = routes.id WHERE sid = $1;`;
+}
+
 /*
 
   Kinda pseudo-code about how to do the all-important exits query based on TfL's journey planning API response:
@@ -28,4 +38,5 @@ async function getAllStations() {
 
 module.exports = {
   getAllStations,
+  getSession,
 };

@@ -16,4 +16,20 @@ INSERT INTO platform_exits (platform_id, carriage_from_front, door_from_front, t
 INSERT INTO exit_interchanges (platform_exit_id, dest_platform_id) VALUES 
   (1, 2);
 
+INSERT INTO sessions (sid) VALUES 
+  ('MYFAKESESSIONID'),
+  ('anotherfakesessionid');
+
+INSERT INTO routes (name) VALUES
+  ('Finsbury park to Bermondsey via Greenpark'),
+  ('Whitechapel to Finsbury park via Kings cross');
+
+
+INSERT INTO session_routes (sid, route_id) VALUES
+  ('MYFAKESESSIONID',1),
+  ('anotherfakesessionid',1),
+    ('anotherfakesessionid',2);
+
+
+
 COMMIT;
