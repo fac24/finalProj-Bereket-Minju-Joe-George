@@ -19,7 +19,7 @@ async function getSession(sid) {
 }
 
 async function getSavedRoutes(sid) {
-  const SELECT_ROUTES = `SELECT name FROM session_routes LEFT JOIN routes ON session_routes.route_id = routes.id WHERE sid = $1;`;
+  const SELECT_ROUTES = `SELECT data FROM session_routes LEFT JOIN routes ON session_routes.route_id = routes.id WHERE sid = $1;`;
   const routes = await db.query(SELECT_ROUTES, [sid]);
   return routes.rows;
 }

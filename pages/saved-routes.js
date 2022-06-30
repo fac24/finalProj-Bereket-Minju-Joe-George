@@ -20,10 +20,10 @@ export async function getServerSideProps({ req, res }) {
     const sid = await createSession(crypto.randomBytes(18).toString("base64"));
 
     // Set the sid cookie
-    cookies.set("sid", sid, { signed: true });
+    // cookies.set("sid", sid, { signed: true });
 
     // Test sid:
-    // cookies.set("sid", "anotherfakesessionid", { signed: true });
+    cookies.set("sid", "anotherfakesessionid", { signed: true });
   } else {
     // The user has a cookie.
 
@@ -49,7 +49,7 @@ export default function SavedRoutes({ savedRoutes }) {
     return (
       <ul>
         {savedRoutes.map((route, index) => (
-          <li key={index}>{route.name}</li>
+          <li key={index}>{JSON.stringify(route.data)}</li>
         ))}
       </ul>
     );
