@@ -64,10 +64,21 @@ CREATE TABLE sessions (
 
 CREATE TABLE routes (
   id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL
+  -- We can store routes in our own JSON format, maybe something like this:
+  -- (property name: value data type)
+  -- {
+  --   start_station: station_naptan,
+  --   platform: individual_stop_id,
+  --   line: id,
+  --   station: station_naptan, [could also call this interchange?]
+  --   platform: individual_stop_id, [the arrival platform could go before the station, it's up to us]
+  --   platform: ",
+  --   end_station: station_naptan [could also be "exit_station"]
+  -- }
+  data JSON NOT NULL
 );
 
-CREATE TABLE  session_routes (
+CREATE TABLE session_routes (
   sid TEXT REFERENCES sessions (sid) NOT NULL,
   route_id INTEGER REFERENCES routes (id) NOT NULL
 );
