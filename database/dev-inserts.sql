@@ -20,16 +20,29 @@ INSERT INTO sessions (sid) VALUES
   ('MYFAKESESSIONID'),
   ('anotherfakesessionid');
 
-INSERT INTO routes (name) VALUES
-  ('Finsbury park to Bermondsey via Greenpark'),
-  ('Whitechapel to Finsbury park via Kings cross');
+-- INSERT INTO routes (name) VALUES
+--   ('Finsbury park to Bermondsey via Greenpark'),
+--   ('Whitechapel to Finsbury park via Kings cross');
 
+INSERT INTO routes (data) VALUES
+  ('{
+      "startStationNaptan": "940GZZLUKSX",
+      "platformIndividualStopId": "9400ZZLUKSX1",
+      "lineId": "victoria",
+      "platformIndividualStopId": "9400ZZLUFPK3",
+      "endStationNaptan": "9400ZZLUFPK"
+  }'),
+  ('{
+      "startStationNaptan": "9400ZZLUFPK",
+      "platformIndividualStopId": "9400ZZLUFPK4",
+      "lineId": "victoria",
+      "platformIndividualStopId": "9400ZZLUKSX2",
+      "endStationNaptan": "940GZZLUKSX"
+  }');
 
 INSERT INTO session_routes (sid, route_id) VALUES
   ('MYFAKESESSIONID',1),
   ('anotherfakesessionid',1),
-    ('anotherfakesessionid',2);
-
-
+  ('anotherfakesessionid',2);
 
 COMMIT;
