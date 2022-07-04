@@ -14,12 +14,22 @@ export async function getServerSideProps(params) {
   if (isStepFree) {
     url += `&accessibilityPreference=noSolidStairs,noEscalators,stepFreeToVehicle,stepFreeToPlatform`;
   }
+
   console.log(url);
   const apiResponseData = await fetch(url).then((resolve) => resolve.json());
-  return { props: { apiResponseData, urlParams } };
+  const firstLeg = apiResponseData.journeys[0].legs;
+  const startEndNames = {
+    start: firstLeg[0].departurePoint.commonName,
+    end: firstLeg[firstLeg.length - 1].arrivalPoint.commonName,
+  };
+  return { props: { apiResponseData, urlParams, startEndNames } };
 }
 
-export default function NewRoute({ apiResponseData, urlParams }) {
+export default function NewRoute({
+  apiResponseData,
+  urlParams,
+  startEndNames,
+}) {
   //const [apiResponseData, setApiResponseData] = useState(null);
   /*
 
@@ -30,7 +40,6 @@ export default function NewRoute({ apiResponseData, urlParams }) {
         of the first, second, third, etc., n-2'th arrivalPoint.
 
   */
-
   if (apiResponseData !== null) {
     if (apiResponseData.httpStatusCode === 404)
       return <h2>No Journeys Available</h2>;
@@ -38,8 +47,7 @@ export default function NewRoute({ apiResponseData, urlParams }) {
     return (
       <>
         <h2>
-          From <b>{urlParams.startStation}</b> to <b>{urlParams.endStation}</b>{" "}
-          via:
+          From <b>{startEndNames.start}</b> to <b>{startEndNames.end}</b> via:
         </h2>
         <ul>
           {apiResponseData.journeys.map(
