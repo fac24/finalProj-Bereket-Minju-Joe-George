@@ -1,13 +1,13 @@
 BEGIN;
 
 INSERT INTO platforms (tfl_public_number, tfl_public_direction_name, train_direction, station_naptan, individual_stop_id) VALUES
-  (1, 'Westbound', 'left', '940GZZLUKSX', '9400ZZLUKSX3'),
-  (3, 'Northbound', 'right', '940GZZLUKSX', '9400ZZLUKSX1'),
+  (1, 'Westbound', 'left', '940GZZLUKSX', '9400ZZLUKSX3'), -- Kings X Circle, h+m, Met
+  (3, 'Northbound', 'right', '940GZZLUKSX', '9400ZZLUKSX1'), -- King X victoria line
   (1,'Eastbound','left','940GZZLUWTA','9400ZZLUWTA1'), -- westacton
   (1,'Eastbound', 'left', '940GZZLUOXC','9400ZZLUOXC1'), --oxford circus central
   (6,'Southbound', 'left', '940GZZLUOXC', '9400ZZLUOXC6'), --oxford circus victoria
   (3,'Southbound', 'left', '940GZZLUVIC', '9400ZZLUVIC3'), --Victoria hmm needs thinking about for the terminii stations
-  (2, 'Northbound', 'left', '940GZZLUFPK', '9400ZZLUFPK3')
+  (2, 'Northbound', 'left', '940GZZLUFPK', '9400ZZLUFPK3') -- Finsbury park victoria line
   ;
 
 INSERT INTO platform_line (platform_id, line_id) VALUES

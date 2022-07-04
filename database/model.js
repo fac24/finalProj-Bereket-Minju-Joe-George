@@ -107,6 +107,27 @@ async function getStationCommonNamesFromNaptans(stationNaptans) {
   return stationNames.rows;
 }
 
+async function getPlatformDataFromIndividualStopPoints(stopIds) {
+  const SELECT_PLATFORM_DATA = /* SQL */ `
+    SELECT platforms.tfl_public_direction_name AS line_direction, platforms.train_direction, lines.name AS line_name
+    FROM platforms, lines, platform_line
+    WHERE (lines.id = platform_line.line_id AND platforms.id = platform_line.platform_id)
+    AND platforms.individual_stop_id = ANY ($1)
+  `;
+  const platformData = await db.query(SELECT_PLATFORM_DATA, [stopIds]);
+  return platformData.rows;
+}
+
+async function getTrainDirectionFromIndividualStopPoints(stopIds) {
+  const SELECT_TRAIN_DIRECTION = /*SQL*/ `
+    SELECT train_direction
+    FROM platforms
+    WHERE individual_stop_id = ANY ($1)
+  `;
+  const trainDirections = await db.query(SELECT_TRAIN_DIRECTION, [stopIds]);
+  return trainDirections.rows;
+}
+
 /*
 
   Kinda pseudo-code about how to do the all-important exits query based on TfL's journey planning API response:
@@ -132,4 +153,6 @@ module.exports = {
   getRouteByIndividualStopIds,
   getStationNameByIndividualStopIds,
   getStationCommonNamesFromNaptans,
+  getPlatformDataFromIndividualStopPoints,
+  getTrainDirectionFromIndividualStopPoints,
 };

@@ -1,6 +1,8 @@
 import {
+  getPlatformDataFromIndividualStopPoints,
   getRouteByIndividualStopIds,
   getStationCommonNamesFromNaptans,
+  getTrainDirectionFromIndividualStopPoints,
 } from "../database/model.js";
 
 export async function getServerSideProps(params) {
@@ -11,57 +13,75 @@ export async function getServerSideProps(params) {
   // Split comma-delimited lists in URL query strings into new arrays
   const platforms = params.query.individualStopIds.split(",");
   const vias = params.query.viaStationNaptans.split(",");
-  const departingPlatforms = platforms.filter((id, index) => index % 2 === 0);
+  const departingPlatformIsds = platforms.filter(
+    (id, index) => index % 2 === 0
+  );
+  const arrivingPlatformIsds = platforms.filter((id, index) => index % 2 === 1);
   // await a bunch of DB queries and send as props
   const [
     startStationCommonName,
     endStationCommonName,
     viaStationsCommonNames,
-    ...routeData
+    departingPlatformData,
+    arrivalDirections,
+    routeData,
   ] = await Promise.all([
-    getStationCommonNamesFromNaptans([params.query.startStationNaptan]),
-    getStationCommonNamesFromNaptans([params.query.endStationNaptan]),
+    getStationCommonNamesFromNaptans([params.query.startStationNaptan]).then(
+      (resolve) => resolve[0].common_name_short
+    ),
+    getStationCommonNamesFromNaptans([params.query.endStationNaptan]).then(
+      (resolve) => resolve[0].common_name_short
+    ),
     getStationCommonNamesFromNaptans(vias).then((resolve) =>
       resolve.map((name) => name.common_name_short)
     ),
+    getPlatformDataFromIndividualStopPoints(departingPlatformIsds),
+    getTrainDirectionFromIndividualStopPoints(arrivingPlatformIsds),
     getRouteByIndividualStopIds(platforms),
   ]);
 
-  const data = routeData[0];
+  const stationStarts = [startStationCommonName, ...viaStationsCommonNames];
 
-  console.log(data);
+  const instructions = routeData.map((instruction, index) => {
+    const side =
+      departingPlatformData[index].train_direction ===
+      arrivalDirections[index].train_direction
+        ? "the same side"
+        : "opposite sides";
+    return {
+      stationStart: stationStarts[index],
+      carriage: instruction.carriage_from_front,
+      door: instruction.door_from_front,
+      line_name: departingPlatformData[index].line_name,
+      line_direction: departingPlatformData[index].line_direction,
+      train_direction: departingPlatformData[index].train_direction,
+      side: side,
+    };
+  });
 
-  // - ////// Platform name - line
-  // - ////////where to stand for next arrival point
-  // - ////Station name
-  // -
+  const stationNames = {
+    start: startStationCommonName,
+    end: endStationCommonName,
+    vias: viaStationsCommonNames,
+  };
 
   return {
     props: {
-      data: data,
-      startStationCommonName: startStationCommonName[0].common_name_short,
-      endStationCommonName: endStationCommonName[0].common_name_short,
-      viaStationsCommonNames,
+      instructions,
+      stationNames,
     },
   };
 }
 
-export default function StartToVia({
-  data,
-  startStationCommonName,
-  endStationCommonName,
-  viaStationsCommonNames,
-}) {
-  // console.log(viaStationsCommonNames);
-  const stationStarts = [startStationCommonName, ...viaStationsCommonNames];
+export default function StartToVia({ instructions, stationNames }) {
   return (
     <>
       <h2>
-        <b>{startStationCommonName}</b> to <b>{endStationCommonName}</b>
-        {viaStationsCommonNames.length !== 0 ? (
+        <b>{stationNames.start}</b> to <b>{stationNames.end}</b>
+        {stationNames.vias.length !== 0 ? (
           <div>
             via{" "}
-            {viaStationsCommonNames.map((element, index, array) => (
+            {stationNames.vias.map((element, index, array) => (
               <>
                 <b>{element}</b>
                 {index !== array.length - 1 ? (
@@ -76,10 +96,23 @@ export default function StartToVia({
         ) : null}
       </h2>
       <ul>
-        {data.map((leg, index) => (
-          <li key={index}>
-            <h3>{stationStarts[index]}</h3>
-            Carriage {leg.carriage_from_front}, door {leg.door_from_front}
+        {instructions.map((instruction, index) => (
+          <li key={index} className="p-4 my-4 border flex">
+            <div className="border mr-4">
+              <h3>{instruction.stationStarts}</h3>
+              <h4>
+                {instruction.line_name}
+                &#8226;
+                {instruction.line_direction}
+              </h4>
+              <p>
+                Carriage {instruction.carriage}, door {instruction.door}
+              </p>
+              <p>
+                The train comes from your {instruction.train_direction} side{" "}
+              </p>
+              <p>Get on and off the train on {instruction.side}</p>
+            </div>
           </li>
         ))}
         {/*
