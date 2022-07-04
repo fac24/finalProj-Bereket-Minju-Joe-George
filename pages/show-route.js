@@ -74,7 +74,6 @@ export async function getServerSideProps(params) {
 }
 
 export default function StartToVia({ instructions, stationNames }) {
-  console.log(stationNames.vias);
   return (
     <>
       <h2>
@@ -102,7 +101,7 @@ export default function StartToVia({ instructions, stationNames }) {
         {instructions.map((instruction, index) => (
           <li key={index} className="p-4 my-4 border flex">
             <div className="border mr-4">
-              <h3>{instruction.stationStarts}</h3>
+              <h3>{instruction.stationStart}</h3>
               <h4>
                 {instruction.line_name}
                 &#8226;
