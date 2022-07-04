@@ -51,7 +51,8 @@ export default function NewRoute({ apiResponseData, urlParams }) {
     return (
       <>
         <h2>
-          From <b>Finsbury Park</b> to <b>Bermondsey</b> via:
+          From <b>{urlParams.startStation}</b> to <b>{urlParams.endStation}</b>{" "}
+          via:
         </h2>
         <ul>
           {apiResponseData.journeys.map(
