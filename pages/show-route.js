@@ -74,6 +74,7 @@ export async function getServerSideProps(params) {
 }
 
 export default function StartToVia({ instructions, stationNames }) {
+  console.log(stationNames.vias);
   return (
     <>
       <h2>
@@ -84,11 +85,13 @@ export default function StartToVia({ instructions, stationNames }) {
             {stationNames.vias.map((element, index, array) => (
               <>
                 <b>{element}</b>
-                {index !== array.length - 1 ? (
+                {index !== array.length - 2 ? (
                   <>
                     {/* todo: on the last iteration, say " and" instead of "," :) */}
                     , <br />
                   </>
+                ) : index !== array.length - 1 ? (
+                  <> and </>
                 ) : null}
               </>
             ))}

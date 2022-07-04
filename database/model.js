@@ -100,7 +100,12 @@ async function getStationNameByIndividualStopIds(stopIds) {
 // }
 
 async function getStationCommonNamesFromNaptans(stationNaptans) {
-  const SELECT_STATIONS = /* SQL */ `SELECT common_name_short FROM stations WHERE station_naptan = ANY ($1);`;
+  const SELECT_STATIONS = /* SQL */ `
+    SELECT common_name_short
+    FROM stations
+    WHERE station_naptan = ANY ($1)
+    ORDER BY idx($1, station_naptan) -- Look at init.sql for what idx does
+  `;
 
   const stationNames = await db.query(SELECT_STATIONS, [stationNaptans]);
 
