@@ -45,11 +45,14 @@ export default function NewRoute({
   sid,
 }) {
   function saveRoute() {
-    const stationElement = event.target.parentNode;
-    console.log(
-      stationElement.querySelector("div").querySelector("div").textContent,
-      stationElement.querySelector("ul")
-    );
+    // const stationElement = event.target.parentNode;
+    // console.log(
+    //   stationElement.querySelector("div").querySelector("div").textContent,
+    //   stationElement.querySelector("ul")
+    // );
+    apiResponseData.journeys.map((journey, index) => {
+      console.log(journey.legs);
+    });
   }
   // "startStationNaptan": "940GZZLUKSX",
   // "platformIndividualStopId": "9400ZZLUKSX1",
