@@ -3,7 +3,6 @@ const BASE_URL = `https://api.tfl.gov.uk/`;
 export default function useLocation(options) {
   const [lat, setLat] = useState(0);
   const [lon, setLon] = useState(0);
-  const [station, setStation] = useState(null);
 
   // when user click the pin then get user's location.
   useEffect(() => {
@@ -18,21 +17,15 @@ export default function useLocation(options) {
         })
         .then((result) => {
           if (result) {
-            //at space 4, user will get finsbury park as staiton naem.
-            setStation(
-              result.stopPoints[0].commonName.replace("Underground Station", "")
-            );
             // add user location's station inside options as first row.
-            if (station !== null) {
-              options.unshift({
-                value: `${lat},${lon}`,
-                label: `📍 Your Location`,
-              });
-            }
+            options.unshift({
+              value: `${lat},${lon}`,
+              label: `📍 Your Location`,
+            });
           }
         });
     }
-  }, [lat, lon, station, setStation, options]);
+  }, [lat, lon, options]);
 
   return [setLat, setLon];
 }
