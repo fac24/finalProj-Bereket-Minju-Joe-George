@@ -122,6 +122,7 @@ async function getStationNameByIndividualStopIds(stopIds) {
 //   return station.rows[0];
 // }
 
+// Takes an array of station naptans and returns an array of rows with one column (common_name_short)
 async function getStationCommonNamesFromNaptans(stationNaptans) {
   const SELECT_STATIONS = /* SQL */ `SELECT common_name_short FROM stations WHERE station_naptan = ANY ($1);`;
 

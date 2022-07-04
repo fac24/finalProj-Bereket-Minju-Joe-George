@@ -1,6 +1,7 @@
 import Cookies from "cookies";
 import crypto from "crypto";
 import { createSession, getSession, getSavedRoutes } from "../database/model";
+import Link from "next/link";
 
 export async function getServerSideProps({ req, res }) {
   const cookieSigningKeys = [process.env.COOKIE_SECRET];
@@ -35,10 +36,6 @@ export async function getServerSideProps({ req, res }) {
     if (sid !== undefined) {
       savedRoutes = await getSavedRoutes(sidCookie);
     }
-
-    console.log("\n\nmylog\n\n");
-    console.log(savedRoutes);
-    console.log("\n\nend of my log\n\n");
   }
 
   return { props: { savedRoutes } };
@@ -55,20 +52,29 @@ export default function SavedRoutes({ savedRoutes }) {
       <ul>
         {savedRoutes.map((route, index) => (
           <li key={index} className="border-4 my-6 p-2">
+            {/* <Link key={index} href="/show-route"> */}
+
             <ul>
               {Object.entries(route.data).map(
                 ([route_step, step_detail], index) => (
                   <li key={index}>
-                    {route_step}:
-                    {Object.entries(step_detail).map(([key, value]) => (
-                      <>
-                        {key} = {value}
-                      </>
-                    ))}
+                    {/* route_step */}
+                    {Object.entries(step_detail)
+                      .filter(([key, value]) => {
+                        if (key !== "lineId") {
+                          return true;
+                        }
+                      })
+                      .map(([key, value]) => (
+                        <>
+                          {key}={value}
+                        </>
+                      ))}
                   </li>
                 )
               )}
             </ul>
+            {/* </Link> */}
           </li>
         ))}
       </ul>
