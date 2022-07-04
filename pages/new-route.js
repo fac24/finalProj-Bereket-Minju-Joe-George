@@ -16,10 +16,10 @@ export async function getServerSideProps(params) {
   }
   console.log(url);
   const apiResponseData = await fetch(url).then((resolve) => resolve.json());
-  return { props: { apiResponseData: apiResponseData } };
+  return { props: { apiResponseData, urlParams } };
 }
 
-export default function NewRoute({ apiResponseData }) {
+export default function NewRoute({ apiResponseData, urlParams }) {
   //const [apiResponseData, setApiResponseData] = useState(null);
   /*
 
@@ -48,10 +48,21 @@ export default function NewRoute({ apiResponseData }) {
             ) => {
               const href = journey.legs.map(
                 (leg) =>
-                  `${leg.departurePoint.individualStopId}-${leg.arrivalPoint.individualStopId}`
+                  `${leg.departurePoint.individualStopId},${leg.arrivalPoint.individualStopId}`
               );
               return (
-                <Link key={index} href={`/${href.join("-")}`}>
+                <Link
+                  key={index}
+                  href={`/show-route?startStationNaptan=${
+                    urlParams.startStation
+                  }&endStationNaptan=${
+                    urlParams.endStation
+                  }&viaStationNaptans=${journey.legs.map((leg, index, arr) => {
+                    if (index !== arr.length - 1) {
+                      return leg.arrivalPoint.naptanId;
+                    }
+                  })}&individualStopIds=${href.join(",")}`}
+                >
                   <a>
                     <li className="p-4 my-4 border flex">
                       <div className="border mr-4">
