@@ -1,14 +1,9 @@
 import { useState, useEffect } from "react";
 const BASE_URL = `https://api.tfl.gov.uk/`;
 export default function useLocation(options) {
-<<<<<<< HEAD
   const [lat, setLat] = useState(null);
   const [lon, setLon] = useState(null);
   const [station, setStation] = useState(null);
-=======
-  const [lat, setLat] = useState(0);
-  const [lon, setLon] = useState(0);
->>>>>>> connect-routes
 
   // when user click the pin then get user's location.
   useEffect(() => {
