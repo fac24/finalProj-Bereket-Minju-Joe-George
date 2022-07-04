@@ -11,7 +11,7 @@ export async function getServerSideProps(params) {
   // Split comma-delimited lists in URL query strings into new arrays
   const platforms = params.query.individualStopIds.split(",");
   const vias = params.query.viaStationNaptans.split(",");
-
+  const departingPlatforms = platforms.filter((id, index) => index % 2 === 0);
   // await a bunch of DB queries and send as props
   const [
     startStationCommonName,
@@ -21,7 +21,9 @@ export async function getServerSideProps(params) {
   ] = await Promise.all([
     getStationCommonNamesFromNaptans([params.query.startStationNaptan]),
     getStationCommonNamesFromNaptans([params.query.endStationNaptan]),
-    getStationCommonNamesFromNaptans(vias),
+    getStationCommonNamesFromNaptans(vias).then((resolve) =>
+      resolve.map((name) => name.common_name_short)
+    ),
     getRouteByIndividualStopIds(platforms),
   ]);
 
@@ -51,7 +53,7 @@ export default function StartToVia({
   viaStationsCommonNames,
 }) {
   // console.log(viaStationsCommonNames);
-  //const stationStarts = [startStationCommonName,...viaStationsCommonNames.map((station) => station.common_name_short)];
+  const stationStarts = [startStationCommonName, ...viaStationsCommonNames];
   return (
     <>
       <h2>
@@ -61,7 +63,7 @@ export default function StartToVia({
             via{" "}
             {viaStationsCommonNames.map((element, index, array) => (
               <>
-                <b>{element.common_name_short}</b>
+                <b>{element}</b>
                 {index !== array.length - 1 ? (
                   <>
                     {/* todo: on the last iteration, say " and" instead of "," :) */}
@@ -76,12 +78,7 @@ export default function StartToVia({
       <ul>
         {data.map((leg, index) => (
           <li key={index}>
-            <h3>
-              {index === 0
-                ? startStationCommonName
-                : viaStationsCommonNames[index - 1].common_name_short}
-              {/* {stationStarts[index]} */}
-            </h3>
+            <h3>{stationStarts[index]}</h3>
             Carriage {leg.carriage_from_front}, door {leg.door_from_front}
           </li>
         ))}
