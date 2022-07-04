@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 const BASE_URL = `https://api.tfl.gov.uk/`;
 export default function useLocation(options) {
-  const [lat, setLat] = useState(0);
-  const [lon, setLon] = useState(0);
+  const [lat, setLat] = useState(null);
+  const [lon, setLon] = useState(null);
   const [station, setStation] = useState(null);
 
   // when user click the pin then get user's location.
   useEffect(() => {
-    if (lat !== 0 && lon !== 0) {
+    console.log(lat, lon);
+    if (lat !== null && lon !== null) {
       fetch(
         `${BASE_URL}StopPoint?lat=${lat}&lon=${lon}&stopTypes=NaptanMetroStation`
       )

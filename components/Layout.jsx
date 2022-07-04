@@ -7,7 +7,7 @@ export default function Layout({ children }) {
       <Head>
         <title>Train Exits</title>
       </Head>
-      <header>
+      <header className="border-b-8">
         <Link href="/">
           <a className="text-3xl font-bold underline">Train Exits</a>
         </Link>

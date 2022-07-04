@@ -49,7 +49,7 @@ export default function SavedRoutes({ savedRoutes }) {
     return (
       <ul>
         {savedRoutes.map((route, index) => (
-          <li key={index}>
+          <li key={index} className="border-b-4">
             <ol>
               {Object.entries(route.data).map(([key, value], index) => (
                 <li key={index}>

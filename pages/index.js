@@ -10,6 +10,10 @@ const stationData = [
   { station_naptan: "940GZZLUEPG", common_name_short: "Epping" },
   { station_naptan: "940GZZLUFPK", common_name_short: "Finsbury Park" },
   { station_naptan: "940GZZLUBMY", common_name_short: "Bermondsey" },
+  {
+    station_naptan: "940GZZLUKSX",
+    common_name_short: "King's Cross St.Pancras",
+  },
 ];
 
 export async function getServerSideProps() {
