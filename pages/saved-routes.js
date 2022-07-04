@@ -35,12 +35,17 @@ export async function getServerSideProps({ req, res }) {
     if (sid !== undefined) {
       savedRoutes = await getSavedRoutes(sidCookie);
     }
+
+    console.log("\n\nmylog\n\n");
+    console.log(savedRoutes);
+    console.log("\n\nend of my log\n\n");
   }
 
   return { props: { savedRoutes } };
 }
 
 export default function SavedRoutes({ savedRoutes }) {
+  //console.log(savedRoutes);
   // savedRoutes will be an empty array if the user has no saved routes,
   // and null if the user has no sid cookie. So check for both.
   if (savedRoutes === null || savedRoutes.length === 0) {
@@ -49,14 +54,21 @@ export default function SavedRoutes({ savedRoutes }) {
     return (
       <ul>
         {savedRoutes.map((route, index) => (
-          <li key={index} className="border-b-4">
-            <ol>
-              {Object.entries(route.data).map(([key, value], index) => (
-                <li key={index}>
-                  {key}: {value}
-                </li>
-              ))}
-            </ol>
+          <li key={index} className="border-4 my-6 p-2">
+            <ul>
+              {Object.entries(route.data).map(
+                ([route_step, step_detail], index) => (
+                  <li key={index}>
+                    {route_step}:
+                    {Object.entries(step_detail).map(([key, value]) => (
+                      <>
+                        {key} = {value}
+                      </>
+                    ))}
+                  </li>
+                )
+              )}
+            </ul>
           </li>
         ))}
       </ul>

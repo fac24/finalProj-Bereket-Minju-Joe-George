@@ -3,10 +3,10 @@ BEGIN;
 INSERT INTO platforms (tfl_public_number, tfl_public_direction_name, train_direction, station_naptan, individual_stop_id) VALUES
   (1, 'Westbound', 'left', '940GZZLUKSX', '9400ZZLUKSX3'),
   (3, 'Northbound', 'right', '940GZZLUKSX', '9400ZZLUKSX1'),
-  (1,'Eastbound','left','940GZZLUWTA','9400ZZLUWTA1'), -- westacton
-  (1,'Eastbound', 'left', '940GZZLUOXC','9400ZZLUOXC1'), --oxford circus central
-  (6,'Southbound', 'left', '940GZZLUOXC', '9400ZZLUOXC6'), --oxford circus victoria
-  (3,'Southbound', 'left', '940GZZLUVIC', '9400ZZLUVIC3'), --Victoria hmm needs thinking about for the terminii stations
+  (1, 'Eastbound', 'left','940GZZLUWTA','9400ZZLUWTA1'), -- westacton
+  (1, 'Eastbound', 'left', '940GZZLUOXC','9400ZZLUOXC1'), --oxford circus central
+  (6, 'Southbound', 'left', '940GZZLUOXC', '9400ZZLUOXC6'), --oxford circus victoria
+  (3, 'Southbound', 'left', '940GZZLUVIC', '9400ZZLUVIC3'), --Victoria hmm needs thinking about for the terminii stations
   (2, 'Northbound', 'left', '940GZZLUFPK', '9400ZZLUFPK3')
   ;
 
@@ -40,23 +40,35 @@ INSERT INTO sessions (sid) VALUES
 
 INSERT INTO routes (data) VALUES
   ('{
-      "startStationNaptan": "940GZZLUKSX",
-      "platformIndividualStopId": "9400ZZLUKSX1",
-      "lineId": "victoria",
-      "platformIndividualStopId": "9400ZZLUFPK3",
-      "endStationNaptan": "9400ZZLUFPK"
+      "0": {"startStationNaptan": "940GZZLUKSX"},
+      "1": {"platformIndividualStopId": "9400ZZLUKSX1"},
+      "2": {"lineId": "victoria"},
+      "3": {"platformIndividualStopId": "9400ZZLUFPK3"},
+      "4": {"endStationNaptan": "9400ZZLUFPK"}
   }'),
   ('{
-      "startStationNaptan": "9400ZZLUFPK",
-      "platformIndividualStopId": "9400ZZLUFPK4",
-      "lineId": "victoria",
-      "platformIndividualStopId": "9400ZZLUKSX2",
-      "endStationNaptan": "940GZZLUKSX"
+      "0": {"startStationNaptan": "9400ZZLUFPK"},
+      "1": {"platformIndividualStopId": "9400ZZLUFPK4"},
+      "2": {"lineId": "victoria"},
+      "3": {"platformIndividualStopId": "9400ZZLUKSX2"},
+      "4": {"endStationNaptan": "940GZZLUKSX"}
+  }'),
+  ('{
+      "0": {"startStationNaptan": "940GZZLUWTA"},
+      "1": {"platformIndividualStopId": "9400ZZLUWTA1"},
+      "2": {"lineId": "central"},
+      "3": {"platformIndividualStopId": "9400ZZLUOXC1"},
+      "4": {"stationNaptan": "940GZZLUOXC"},
+      "5": {"platformIndividualStopId": "9400ZZLUOXC6"},
+      "6": {"lineId": "victoria"},
+      "7": {"platformIndividualStopId": "9400ZZLUVIC3"},
+      "8": {"endStationNaptan": "940GZZLUVIC"}
   }');
 
 INSERT INTO session_routes (sid, route_id) VALUES
-  ('MYFAKESESSIONID',1),
-  ('anotherfakesessionid',1),
-  ('anotherfakesessionid',2);
+  ('MYFAKESESSIONID', 1),
+  ('anotherfakesessionid', 1),
+  ('anotherfakesessionid', 2),
+  ('anotherfakesessionid', 3);
 
 COMMIT;
