@@ -138,7 +138,7 @@ async function getStationCommonNamesFromNaptans(stationNaptans) {
 
 async function getPlatformDataFromIndividualStopPoints(stopIds) {
   const SELECT_PLATFORM_DATA = /* SQL */ `
-    SELECT platforms.tfl_public_direction_name AS line_direction, platforms.train_direction, lines.name AS line_name
+    SELECT platforms.tfl_public_direction_name AS line_direction, platforms.train_direction, lines.name AS line_name, lines.id AS line_id
     FROM platforms, lines, platform_line
     WHERE (lines.id = platform_line.line_id AND platforms.id = platform_line.platform_id)
     AND platforms.individual_stop_id = ANY ($1)
