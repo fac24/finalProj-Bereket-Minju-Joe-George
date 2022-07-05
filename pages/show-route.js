@@ -12,11 +12,13 @@ export async function getServerSideProps(params) {
 
   // Split comma-delimited lists in URL query strings into new arrays
   const platforms = params.query.individualStopIds.split(",");
+
   const vias = params.query.viaStationNaptans.split(",");
   const departingPlatformIsds = platforms.filter(
     (id, index) => index % 2 === 0
   );
   const arrivingPlatformIsds = platforms.filter((id, index) => index % 2 === 1);
+
   // await a bunch of DB queries and send as props
   const [
     startStationCommonName,
@@ -41,6 +43,7 @@ export async function getServerSideProps(params) {
   ]);
 
   const stationStarts = [startStationCommonName, ...viaStationsCommonNames];
+  console.log(stationStarts);
 
   const instructions = routeData.map((instruction, index) => {
     const side =
