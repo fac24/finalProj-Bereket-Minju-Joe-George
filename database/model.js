@@ -124,11 +124,37 @@ async function getStationNameByIndividualStopIds(stopIds) {
 
 // Takes an array of station naptans and returns an array of rows with one column (common_name_short)
 async function getStationCommonNamesFromNaptans(stationNaptans) {
-  const SELECT_STATIONS = /* SQL */ `SELECT common_name_short FROM stations WHERE station_naptan = ANY ($1);`;
+  const SELECT_STATIONS = /* SQL */ `
+    SELECT common_name_short
+    FROM stations
+    WHERE station_naptan = ANY ($1)
+    ORDER BY idx($1, station_naptan) -- Look at init.sql for what idx does
+  `;
 
   const stationNames = await db.query(SELECT_STATIONS, [stationNaptans]);
 
   return stationNames.rows;
+}
+
+async function getPlatformDataFromIndividualStopPoints(stopIds) {
+  const SELECT_PLATFORM_DATA = /* SQL */ `
+    SELECT platforms.tfl_public_direction_name AS line_direction, platforms.train_direction, lines.name AS line_name
+    FROM platforms, lines, platform_line
+    WHERE (lines.id = platform_line.line_id AND platforms.id = platform_line.platform_id)
+    AND platforms.individual_stop_id = ANY ($1)
+  `;
+  const platformData = await db.query(SELECT_PLATFORM_DATA, [stopIds]);
+  return platformData.rows;
+}
+
+async function getTrainDirectionFromIndividualStopPoints(stopIds) {
+  const SELECT_TRAIN_DIRECTION = /*SQL*/ `
+    SELECT train_direction
+    FROM platforms
+    WHERE individual_stop_id = ANY ($1)
+  `;
+  const trainDirections = await db.query(SELECT_TRAIN_DIRECTION, [stopIds]);
+  return trainDirections.rows;
 }
 
 /*
@@ -160,4 +186,6 @@ module.exports = {
   getRouteByIndividualStopIds,
   getStationNameByIndividualStopIds,
   getStationCommonNamesFromNaptans,
+  getPlatformDataFromIndividualStopPoints,
+  getTrainDirectionFromIndividualStopPoints,
 };

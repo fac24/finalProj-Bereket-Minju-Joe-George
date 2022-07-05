@@ -83,6 +83,19 @@ CREATE TABLE session_routes (
   route_id INTEGER REFERENCES routes (id) NOT NULL
 );
 
+-- Creating idx function that will order the return based on the input of the array rather than by the id
+-- Found here - https://wiki.postgresql.org/wiki/Array_Index
+CREATE OR REPLACE FUNCTION idx(anyarray, anyelement)
+  RETURNS int AS 
+$$
+  SELECT i FROM (
+     SELECT generate_series(array_lower($1,1),array_upper($1,1))
+  ) g(i)
+  WHERE $1[i] = $2
+  LIMIT 1;
+$$ LANGUAGE sql IMMUTABLE;
+
+
 -- CREATE TABLE users_feedback (
 --   id SERIAL PRIMARY KEY,
 --   platform_exits_id INTEGER REFERENCES platform_exits(id),
