@@ -7,7 +7,7 @@ export default function useLocation(options) {
 
   // when user click the pin then get user's location.
   useEffect(() => {
-    console.log(lat, lon);
+    // console.log(lat, lon);
     if (lat !== null && lon !== null) {
       fetch(
         `${BASE_URL}StopPoint?lat=${lat}&lon=${lon}&stopTypes=NaptanMetroStation`

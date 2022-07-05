@@ -1,3 +1,70 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* TfL colours */
+/* source - https://techforum.tfl.gov.uk/t/how-can-i-get-the-colours-for-each-line/2063/2 */
+.piccadilly {
+  background: #0019A8;
+  color: white
+}
+
+.bakerloo {
+  background: #B26313;
+  color: #fff
+}
+
+.central {
+  background: #DC241F;
+  color: white
+}
+
+.circle {
+  background: #FFD329;
+  color: #0019A8
+}
+
+.district {
+  background: #007D32;
+  color: white
+}
+
+.hammersmith-city {
+  background: #F4A9BE;
+  color: #0019A8
+}
+
+.jubilee {
+  background: #A1A5A7;
+  color: white
+}
+
+.metropolitan {
+  background: #9B0058;
+  color: white
+}
+
+.northern {
+  background: #000;
+  color: #fff
+}
+
+.victoria {
+  background: #0098D8;
+  color: white
+}
+
+.waterloo-city {
+  background: #93CEBA;
+  color: #0019A8
+}
+
+/* End of TfL colours */
+
+#new-route-form label {
+  display: block;
+}
+
+#new-route-form > * + * {
+  margin-top: 1rem;
+}

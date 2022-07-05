@@ -58,6 +58,31 @@ CREATE TABLE exit_interchanges (
   dest_platform_id INTEGER REFERENCES platforms (id)
 );
 
+CREATE TABLE sessions (
+  sid TEXT PRIMARY KEY
+);
+
+CREATE TABLE routes (
+  id SERIAL PRIMARY KEY,
+  -- We can store routes in our own JSON format, maybe something like this:
+  -- (property name: value data type)
+  -- {
+  --   start_station: station_naptan,
+  --   platform: individual_stop_id,
+  --   line: id,
+  --   station: station_naptan, [could also call this interchange?]
+  --   platform: individual_stop_id, [the arrival platform could go before the station, it's up to us]
+  --   platform: ",
+  --   end_station: station_naptan [could also be "exit_station"]
+  -- }
+  data JSON NOT NULL
+);
+
+CREATE TABLE session_routes (
+  sid TEXT REFERENCES sessions (sid) NOT NULL,
+  route_id INTEGER REFERENCES routes (id) NOT NULL
+);
+
 -- Creating idx function that will order the return based on the input of the array rather than by the id
 -- Found here - https://wiki.postgresql.org/wiki/Array_Index
 CREATE OR REPLACE FUNCTION idx(anyarray, anyelement)

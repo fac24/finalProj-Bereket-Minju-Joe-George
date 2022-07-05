@@ -6,6 +6,12 @@ async function getAllStations() {
   return allStations.rows;
 }
 
+async function getAllLines() {
+  const SELECT_ALL_LINES = /* SQL */ `SELECT * FROM lines`;
+  const allLines = await db.query(SELECT_ALL_LINES);
+  return allLines.rows
+}
+
 async function createSession(sid) {
   const CREATE_SESSION = `INSERT INTO sessions (sid) VALUES ($1) RETURNING sid;`;
   const session = await db.query(CREATE_SESSION, [sid]);
@@ -138,10 +144,11 @@ async function getStationCommonNamesFromNaptans(stationNaptans) {
 
 async function getPlatformDataFromIndividualStopPoints(stopIds) {
   const SELECT_PLATFORM_DATA = /* SQL */ `
-    SELECT platforms.tfl_public_direction_name AS line_direction, platforms.train_direction, lines.name AS line_name
+    SELECT platforms.tfl_public_direction_name AS line_direction, platforms.train_direction, lines.name AS line_name, lines.id AS line_id
     FROM platforms, lines, platform_line
     WHERE (lines.id = platform_line.line_id AND platforms.id = platform_line.platform_id)
     AND platforms.individual_stop_id = ANY ($1)
+    ORDER BY idx($1, station_naptan)
   `;
   const platformData = await db.query(SELECT_PLATFORM_DATA, [stopIds]);
   return platformData.rows;
@@ -152,6 +159,7 @@ async function getTrainDirectionFromIndividualStopPoints(stopIds) {
     SELECT train_direction
     FROM platforms
     WHERE individual_stop_id = ANY ($1)
+    ORDER BY idx($1, station_naptan)
   `;
   const trainDirections = await db.query(SELECT_TRAIN_DIRECTION, [stopIds]);
   return trainDirections.rows;
@@ -179,6 +187,7 @@ async function getTrainDirectionFromIndividualStopPoints(stopIds) {
 
 module.exports = {
   getAllStations,
+  getAllLines,
   createSession,
   getSession,
   getSavedRoutes,
