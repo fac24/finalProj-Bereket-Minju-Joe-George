@@ -62,6 +62,7 @@ CREATE TABLE sessions (
   sid TEXT PRIMARY KEY
 );
 
+-- Joe todo: how can we make sure these are unique?! A UNIQUE constraint on the data column?!
 CREATE TABLE routes (
   id SERIAL PRIMARY KEY,
   -- We can store routes in our own JSON format, maybe something like this:
@@ -78,9 +79,18 @@ CREATE TABLE routes (
   data JSON NOT NULL
 );
 
+-- For saving routes to individual sessions (users):
 CREATE TABLE session_routes (
   sid TEXT REFERENCES sessions (sid) NOT NULL,
   route_id INTEGER REFERENCES routes (id) NOT NULL
+);
+
+CREATE TABLE route_feedback (
+  id SERIAL PRIMARY KEY,
+  sid TEXT REFERENCES sessions (sid) NOT NULL,
+  route_id INTEGER REFERENCES routes (id) NOT NULL,
+  -- If the user says a route was correct(/it worked for them), record "true"
+  correct BOOLEAN NOT NULL
 );
 
 -- Creating idx function that will order the return based on the input of the array rather than by the id

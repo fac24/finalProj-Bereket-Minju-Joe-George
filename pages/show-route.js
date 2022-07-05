@@ -1,3 +1,9 @@
+import Link from "next/link";
+import Cookies from "cookies";
+import crypto from "crypto";
+
+import { getSession, createSession } from "../database/model";
+
 import FromToVia from "../components/FromToVia.jsx";
 import Instruction from "../components/Instruction.jsx";
 import {
@@ -7,11 +13,40 @@ import {
   getTrainDirectionFromIndividualStopPoints,
 } from "../database/model.js";
 
+import { useState, useEffect } from "react";
+
 const toCommonNameShort = (resolve) => {
   return resolve.map((name) => name.common_name_short);
 };
 
 export async function getServerSideProps(params) {
+  const cookieSigningKeys = [process.env.COOKIE_SECRET];
+
+  const cookies = new Cookies(params.req, params.res, {
+    keys: cookieSigningKeys,
+  });
+
+  // Get the user's sid cookie. (If it doesn't exit, set to null)
+  const sidCookie =
+    cookies.get("sid", { signed: true, sameSite: "strict" }) || null;
+  let sid;
+  // If the sid cookie is falsy, the user has no cookie, so set one
+  if (!sidCookie) {
+    // Generate unique sid and add to database
+    sid = await createSession(crypto.randomBytes(18).toString("base64"));
+
+    // Set the sid cookie
+    // cookies.set("sid", sid, { signed: true });
+
+    // Test sid:
+    cookies.set("sid", "anotherfakesessionid", { signed: true });
+  } else {
+    // The user has a cookie.
+
+    // Is their sid in our db?
+    sid = await getSession(sidCookie);
+  }
+
   // The URL query string will look a bit like this:
   // /show-route?startStationNaptan=...&endStationNaptan=...&viaStationNaptans=...,...,&individualStopIds=...,...,...,...
   // See the big <Link>in new-route.js for the exact format of the URL query string.
@@ -72,11 +107,15 @@ export async function getServerSideProps(params) {
     props: {
       instructions,
       stationNames,
+      sid,
     },
   };
 }
 
-export default function StartToVia({ instructions, stationNames }) {
+export default function StartToVia({ instructions, stationNames, sid }) {
+  const [feedbackMode, setFeedbackMode] = useState(false);
+
+  // console.log("query", query);
   return (
     <>
       <FromToVia
@@ -86,9 +125,21 @@ export default function StartToVia({ instructions, stationNames }) {
       />
       <ul>
         {instructions.map((instruction, index) => (
-          <Instruction key={index} instruction={instruction} />
+          <Instruction
+            key={index}
+            instruction={instruction}
+            feedbackMode={feedbackMode}
+            sid={sid}
+          />
         ))}
       </ul>
+
+      <a
+        className="bg-green-400 rounded py-1 px-2 hover:bg-green-500"
+        onClick={() => setFeedbackMode(!feedbackMode)}
+      >
+        {feedbackMode ? <>Now submitting feedback</> : <>Is this correct?</>}
+      </a>
     </>
   );
 }
