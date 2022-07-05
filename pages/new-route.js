@@ -4,6 +4,7 @@ const baseJourneyURL = "https://api.tfl.gov.uk/Journey/JourneyResults/";
 import Cookies from "cookies";
 
 import { getSession } from "../database/model";
+import FromToVia from "../components/FromToVia";
 
 export async function getServerSideProps(params) {
   const cookieSigningKeys = [process.env.COOKIE_SECRET];
@@ -32,8 +33,12 @@ export async function getServerSideProps(params) {
   const apiResponseData = await fetch(url).then((resolve) => resolve.json());
   const firstLeg = apiResponseData.journeys[0].legs;
   const startEndNames = {
-    start: firstLeg[0].departurePoint.commonName,
-    end: firstLeg[firstLeg.length - 1].arrivalPoint.commonName,
+    start: firstLeg[0].departurePoint.commonName
+      .replace(" Underground Station", "")
+      .replace(" Underground Stn", ""),
+    end: firstLeg[firstLeg.length - 1].arrivalPoint.commonName
+      .replace(" Underground Station", "")
+      .replace(" Underground Stn", ""),
   };
   return { props: { apiResponseData, urlParams, startEndNames } };
 }
@@ -58,9 +63,7 @@ export default function NewRoute({
       return <h2>No Journeys Available</h2>;
     return (
       <>
-        <h2>
-          From <b>{startEndNames.start}</b> to <b>{startEndNames.end}</b> via:
-        </h2>
+        <FromToVia from={startEndNames.start} to={startEndNames.end} />
         <ul>
           {apiResponseData.journeys.map(
             (
@@ -90,21 +93,29 @@ export default function NewRoute({
                         {journey.legs.map(
                           (
                             leg,
-                            index,
-                            arr // map data to list journey
+                            index // map data to list journey
                           ) => (
                             // Todo: replace these text labels with colourful rectangles :)
                             // Use the line name as hidden text for a11y
                             // Maybe use a table so we can vertically align interchanges and lines.
                             <div key={index}>
-                              {leg.routeOptions[0].lineIdentifier?.name}
+                              <span
+                                className={
+                                  leg.routeOptions[0].lineIdentifier?.id
+                                }
+                              >
+                                {leg.routeOptions[0].lineIdentifier?.name}
+                              </span>
                             </div>
                           )
                         )}
                       </div>
                       <ul>
                         {journey.legs.map((leg, index, arr) =>
-                          /* <li key={index}>{leg.instruction.summary}</li> */
+                          leg.routeOptions[0].lineIdentifier?.id ===
+                          undefined ? null : arr.length === 1 ? (
+                            <li key={index}>Direct</li>
+                          ) : /* <li key={index}>{leg.instruction.summary}</li> */
                           // For all legs except the last, print the arrival station name,
                           // as this is equivalent to the "interchange" stop.
                           // (The arrival station of leg 1 will be the same as the departure station of leg 2, etc.)

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Select from "react-select";
-import useLocation from "../components/Hooks/useLocation";
+import OurSelect from "../components/OurSelect.jsx";
+import useLocation from "../components/Hooks/useLocation.jsx";
 import { getAllStations } from "../database/model";
 
 const BASE_URL = `https://api.tfl.gov.uk/`;
@@ -57,40 +57,54 @@ export default function Home({
 
   return (
     <>
-      <form action="/new-route">
-        <label htmlFor="startStation">Select Starting Station</label>
-        <Select
-          id="startStation"
-          name="startStation"
-          defaultValue={selectedStart}
-          onChange={setSelectedStart}
-          options={options}
-        />
-        <span onClick={getLocation}>📍</span>
-        <br />
-        <Link href="/map">
-          <a>Show me a map</a>
-        </Link>
-        <br />
-        <label htmlFor="endStation">Select Ending Station</label>
-        <Select
-          id="endStation"
-          name="endStation"
-          defaultValue={selectedEnd}
-          onChange={setSelectedEnd}
-          options={options}
-        />
-        <br />
-        <input
-          type="checkbox"
-          id="stepFree"
-          name="stepFree"
-          onChange={(event) => setStepFree(event.target.value)}
-        />
-        <label htmlFor="stepFree">Step Free?</label>
-        <br />
+      <form id="new-route-form" action="/new-route">
+        <label htmlFor="start-station">
+          Select start station
+          <OurSelect
+            id="start-station"
+            name="startStation"
+            defaultValue={selectedStart}
+            onChange={setSelectedStart}
+            options={options}
+          />
+        </label>
 
-        <button type="submit">Find My Route</button>
+        <button
+          id="get-location"
+          onClick={getLocation}
+          className="border rounded px-2 py-1"
+        >
+          <span className="text-2xl">📍</span> Find my start location
+        </button>
+
+        <label htmlFor="end-station">
+          Select end station
+          <OurSelect
+            id="end-station"
+            name="endStation"
+            defaultValue={selectedEnd}
+            onChange={setSelectedEnd}
+            options={options}
+          />
+        </label>
+
+        <label htmlFor="step-free">
+          <input
+            type="checkbox"
+            id="step-free"
+            name="stepFree"
+            onChange={(event) => setStepFree(event.target.value)}
+            className="mr-2"
+          />
+          Step free
+        </label>
+
+        <button
+          type="submit"
+          className="block rounded py-1 px-3 mx-auto bg-sky-600 hover:bg-sky-700 text-lg text-white"
+        >
+          Find my route
+        </button>
       </form>
     </>
   );
