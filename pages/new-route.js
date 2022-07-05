@@ -1,8 +1,22 @@
 import Link from "next/link";
 
 const baseJourneyURL = "https://api.tfl.gov.uk/Journey/JourneyResults/";
+import Cookies from "cookies";
+
+import { getSession } from "../database/model";
 
 export async function getServerSideProps(params) {
+  const cookieSigningKeys = [process.env.COOKIE_SECRET];
+
+  const cookies = new Cookies(params.req, params.res, {
+    keys: cookieSigningKeys,
+  });
+
+  const sidCookie =
+    cookies.get("sid", { signed: true, sameSite: "strict" }) || null;
+
+  const sid = await getSession(sidCookie);
+
   const formData = params.query;
   const isStepFree = formData.stepFree || null;
   const urlParams = {
@@ -14,8 +28,7 @@ export async function getServerSideProps(params) {
   if (isStepFree) {
     url += `&accessibilityPreference=noSolidStairs,noEscalators,stepFreeToVehicle,stepFreeToPlatform`;
   }
-
-  console.log(url);
+  // console.log(url);
   const apiResponseData = await fetch(url).then((resolve) => resolve.json());
   const firstLeg = apiResponseData.journeys[0].legs;
   const startEndNames = {
@@ -32,18 +45,17 @@ export default function NewRoute({
 }) {
   //const [apiResponseData, setApiResponseData] = useState(null);
   /*
-
+  
   - Is there more than one leg?
-    - If not, just show that route (say "direct").
-    - If so, make an array of the interchange stops to show "vias".
-      - We could do this by taking the commonName (or UID and get the other name from our DB!)
-        of the first, second, third, etc., n-2'th arrivalPoint.
-
+  - If not, just show that route (say "direct").
+  - If so, make an array of the interchange stops to show "vias".
+  - We could do this by taking the commonName (or UID and get the other name from our DB!)
+  of the first, second, third, etc., n-2'th arrivalPoint.
+  
   */
   if (apiResponseData !== null) {
     if (apiResponseData.httpStatusCode === 404)
       return <h2>No Journeys Available</h2>;
-
     return (
       <>
         <h2>

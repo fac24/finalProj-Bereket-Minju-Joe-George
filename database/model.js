@@ -6,6 +6,29 @@ async function getAllStations() {
   return allStations.rows;
 }
 
+async function createSession(sid) {
+  const CREATE_SESSION = `INSERT INTO sessions (sid) VALUES ($1) RETURNING sid;`;
+  const session = await db.query(CREATE_SESSION, [sid]);
+  return session.rows[0].sid;
+}
+
+async function getSession(sid) {
+  const SELECT_SESSION = `SELECT * FROM sessions WHERE sid = $1;`;
+  const session = await db.query(SELECT_SESSION, [sid]);
+  return session.rows[0];
+}
+
+async function getSavedRoutes(sid) {
+  const SELECT_ROUTES = `SELECT data FROM session_routes LEFT JOIN routes ON session_routes.route_id = routes.id WHERE sid = $1;`;
+  const routes = await db.query(SELECT_ROUTES, [sid]);
+  return routes.rows;
+}
+
+async function getStation(stationNaptan) {
+  const SELECT_STATION = `SELECT common_name_short FROM stations WHERE station_naptan=$1;`;
+  const station = await db.query(SELECT_STATION, [stationNaptan]);
+  return station.rows[0];
+}
 // Get data from db to then send as props
 // - Platform name - line
 // - where to stand for next arrival point
@@ -99,6 +122,7 @@ async function getStationNameByIndividualStopIds(stopIds) {
 //   return station.rows[0];
 // }
 
+// Takes an array of station naptans and returns an array of rows with one column (common_name_short)
 async function getStationCommonNamesFromNaptans(stationNaptans) {
   const SELECT_STATIONS = /* SQL */ `
     SELECT common_name_short
@@ -157,6 +181,10 @@ async function getTrainDirectionFromIndividualStopPoints(stopIds) {
 
 module.exports = {
   getAllStations,
+  createSession,
+  getSession,
+  getSavedRoutes,
+  getStation,
   getRouteByIndividualStopIds,
   getStationNameByIndividualStopIds,
   getStationCommonNamesFromNaptans,
