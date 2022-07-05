@@ -118,6 +118,7 @@ async function getPlatformDataFromIndividualStopPoints(stopIds) {
     FROM platforms, lines, platform_line
     WHERE (lines.id = platform_line.line_id AND platforms.id = platform_line.platform_id)
     AND platforms.individual_stop_id = ANY ($1)
+    ORDER BY idx($1, station_naptan)
   `;
   const platformData = await db.query(SELECT_PLATFORM_DATA, [stopIds]);
   return platformData.rows;
@@ -128,6 +129,7 @@ async function getTrainDirectionFromIndividualStopPoints(stopIds) {
     SELECT train_direction
     FROM platforms
     WHERE individual_stop_id = ANY ($1)
+    ORDER BY idx($1, station_naptan)
   `;
   const trainDirections = await db.query(SELECT_TRAIN_DIRECTION, [stopIds]);
   return trainDirections.rows;
