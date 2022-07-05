@@ -69,13 +69,14 @@ export default function Home({
           />
         </label>
 
-        <a
+        <button
+          type="button"
           id="get-location"
           onClick={getLocation}
           className="block border rounded px-2 py-1 cursor-pointer max-w-fit"
         >
           <span className="text-2xl">📍</span> Find my start location
-        </a>
+        </button>
 
         <label htmlFor="end-station">
           Select end station
