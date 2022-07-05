@@ -55,24 +55,21 @@ export default function SavedRoutes({ savedRoutes }) {
             {/* <Link key={index} href="/show-route"> */}
 
             <ul>
-              {Object.entries(route.data).map(
-                ([route_step, step_detail], index) => (
-                  <li key={index}>
-                    {/* route_step */}
-                    {Object.entries(step_detail)
-                      .filter(([key, value]) => {
-                        if (key !== "lineId") {
-                          return true;
-                        }
-                      })
-                      .map(([key, value]) => (
-                        <>
-                          {key}={value}
-                        </>
-                      ))}
-                  </li>
-                )
-              )}
+              {Object.entries(route.data).map(([route_step, step_detail]) => (
+                <li key={route_step}>
+                  {Object.entries(step_detail)
+                    .filter(([key, _]) => {
+                      if (key !== "lineId") {
+                        return true;
+                      }
+                    })
+                    .map(([key, value]) => (
+                      <>
+                        {key}={value}
+                      </>
+                    ))}
+                </li>
+              ))}
             </ul>
             {/* </Link> */}
           </li>
