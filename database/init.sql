@@ -30,7 +30,7 @@ CREATE TABLE platforms (
   -- Tran direction can only be from the left or right (when on platform, facing tracks).
   -- So make this a boolean: true = from the right, false = from the left.
   -- (See a note in Figma about possible exceptions which our app wil ignore!) :D
-  train_direction BOOLEAN NOT NULL,
+  train_direction TEXT NOT NULL,
   station_naptan TEXT REFERENCES stations (station_naptan) NOT NULL,
   -- Can't find any documentation on this, but seems to uniquely identify platforms?
   -- We COULD use this instead of id above, as it's a unique identifier (hopefully!).
@@ -55,8 +55,20 @@ CREATE TABLE platform_exits (
 CREATE TABLE exit_interchanges (
   id SERIAL PRIMARY KEY,
   platform_exit_id INTEGER REFERENCES platform_exits (id) NOT NULL,
-  dest_platform_id INTEGER REFERENCES platforms (id) NOT NULL
+  dest_platform_id INTEGER REFERENCES platforms (id)
 );
+
+-- Creating idx function that will order the return based on the input of the array rather than by the id
+-- Found here - https://wiki.postgresql.org/wiki/Array_Index
+CREATE OR REPLACE FUNCTION idx(anyarray, anyelement)
+  RETURNS int AS 
+$$
+  SELECT i FROM (
+     SELECT generate_series(array_lower($1,1),array_upper($1,1))
+  ) g(i)
+  WHERE $1[i] = $2
+  LIMIT 1;
+$$ LANGUAGE sql IMMUTABLE;
 
 
 -- CREATE TABLE users_feedback (

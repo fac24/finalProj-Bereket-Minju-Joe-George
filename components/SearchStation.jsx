@@ -1,6 +1,7 @@
 import useSearchStation from "./Hooks/useSearchStation";
 
 const debounce = (func, timeout = 300) => {
+  // look up?? auto-complete function
   let timer;
   return (...args) => {
     clearTimeout(timer);

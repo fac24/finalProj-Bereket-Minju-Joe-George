@@ -1,9 +1,138 @@
 const db = require("./connection.js");
 
 async function getAllStations() {
-  const SELECT_ALL_STATIONS = `SELECT * FROM stations;`;
+  const SELECT_ALL_STATIONS = /* SQL */ `SELECT * FROM stations ORDER BY common_name_short;`;
   const allStations = await db.query(SELECT_ALL_STATIONS);
   return allStations.rows;
+}
+
+// Get data from db to then send as props
+// - Platform name - line
+// - where to stand for next arrival point
+// - Station name
+// -
+
+async function getRouteByIndividualStopIds(stopIds) {
+  const arrivalPoints = stopIds.filter((stopId, index) => index % 2 === 1);
+  const departurePoints = stopIds.filter((stopId, index) => index % 2 === 0);
+
+  const SELECT_PLATFORM_EXIT_ID = /* SQL */ `
+    SELECT platform_exit_id 
+    FROM exit_interchanges 
+    WHERE dest_platform_id = (
+      SELECT id 
+      FROM platforms 
+      WHERE individual_stop_id = $1
+    )
+  `;
+
+  const query1 = await Promise.all(
+    departurePoints.map((departurePoint) =>
+      db
+        .query(SELECT_PLATFORM_EXIT_ID, [departurePoint])
+        .then((res) => res.rows)
+    )
+  );
+  // For hard coded we get [[], [{id for exit interchange}]]
+
+  const SELECT_PLATFORM_EXITS = /* SQL */ `
+    SELECT *
+    FROM platform_exits
+    WHERE platform_id = (
+      SELECT id 
+      FROM platforms 
+      WHERE individual_stop_id = $1
+    )
+  `;
+
+  let SELECT_INTERCHANGE;
+  let SELECT_EXIT;
+  const query2 = await Promise.all(
+    arrivalPoints
+      .map((arrivalPoint, index, arr) => {
+        if (index !== arr.length - 1) {
+          SELECT_INTERCHANGE = SELECT_PLATFORM_EXITS + `AND id = $2`;
+          return [arrivalPoint, query1[index + 1][0].platform_exit_id];
+        } else {
+          SELECT_EXIT = SELECT_PLATFORM_EXITS + `AND type = $2`;
+          return [arrivalPoint, 0];
+        }
+      })
+      .map((arrivalPoint, index, arr) => {
+        if (arr.length === index + 1) {
+          return db.query(SELECT_EXIT, arrivalPoint).then((res) => res.rows[0]);
+        } else {
+          return db
+            .query(SELECT_INTERCHANGE, [arrivalPoint[0], arrivalPoint[1]])
+            .then((res) => res.rows[0]);
+        }
+      })
+  );
+
+  return query2;
+}
+
+async function getStationNameByIndividualStopIds(stopIds) {
+  const SELECT_STATION_NAMES = /* SQL */ `
+    SELECT common_name_short 
+    FROM stations 
+    WHERE station_naptan = (
+      SELECT station_naptan
+      FROM platforms 
+      WHERE individual_stop_id = $1
+    )
+  `;
+
+  const stationNames = await Promise.all(
+    stopIds.map((stopId) => {
+      return db
+        .query(SELECT_STATION_NAMES, [stopId])
+        .then((res) => res.rows[0]);
+    })
+  );
+  return stationNames;
+}
+
+// async function getStation(stationNaptan) {
+//   const SELECT_STATION = `SELECT common_name_short FROM stations WHERE station_naptan=$1;`;
+//   const station = await db.query(SELECT_STATION, [stationNaptan]);
+//   return station.rows[0];
+// }
+
+async function getStationCommonNamesFromNaptans(stationNaptans) {
+  const SELECT_STATIONS = /* SQL */ `
+    SELECT common_name_short
+    FROM stations
+    WHERE station_naptan = ANY ($1)
+    ORDER BY idx($1, station_naptan) -- Look at init.sql for what idx does
+  `;
+
+  const stationNames = await db.query(SELECT_STATIONS, [stationNaptans]);
+
+  return stationNames.rows;
+}
+
+async function getPlatformDataFromIndividualStopPoints(stopIds) {
+  const SELECT_PLATFORM_DATA = /* SQL */ `
+    SELECT platforms.tfl_public_direction_name AS line_direction, platforms.train_direction, lines.name AS line_name
+    FROM platforms, lines, platform_line
+    WHERE (lines.id = platform_line.line_id AND platforms.id = platform_line.platform_id)
+    AND platforms.individual_stop_id = ANY ($1)
+    ORDER BY idx($1, station_naptan)
+  `;
+  const platformData = await db.query(SELECT_PLATFORM_DATA, [stopIds]);
+  return platformData.rows;
+}
+
+async function getTrainDirectionFromIndividualStopPoints(stopIds) {
+  const SELECT_TRAIN_DIRECTION = /*SQL*/ `
+    SELECT train_direction
+    FROM platforms
+    WHERE individual_stop_id = ANY ($1)
+    ORDER BY idx($1, station_naptan)
+  `;
+  const trainDirections = await db.query(SELECT_TRAIN_DIRECTION, [stopIds]);
+  return trainDirections.rows;
 }
 
 /*
@@ -28,4 +157,9 @@ async function getAllStations() {
 
 module.exports = {
   getAllStations,
+  getRouteByIndividualStopIds,
+  getStationNameByIndividualStopIds,
+  getStationCommonNamesFromNaptans,
+  getPlatformDataFromIndividualStopPoints,
+  getTrainDirectionFromIndividualStopPoints,
 };
