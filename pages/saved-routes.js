@@ -48,32 +48,39 @@ export default function SavedRoutes({ savedRoutes }) {
   if (savedRoutes === null || savedRoutes.length === 0) {
     return <p>No saved routes</p>;
   } else {
+    console.log(savedRoutes[0].data);
     return (
       <ul>
-        {savedRoutes.map((route, index) => (
-          <li key={index} className="border-4 my-6 p-2">
-            {/* <Link key={index} href="/show-route"> */}
-
-            <ul>
-              {Object.entries(route.data).map(([route_step, step_detail]) => (
-                <li key={route_step}>
-                  {Object.entries(step_detail)
-                    .filter(([key, _]) => {
-                      if (key !== "lineId") {
-                        return true;
-                      }
-                    })
-                    .map(([key, value]) => (
-                      <>
-                        {key}={value}
-                      </>
-                    ))}
-                </li>
-              ))}
-            </ul>
-            {/* </Link> */}
-          </li>
-        ))}
+        {savedRoutes.map((route, index) => {
+          const startStationNaptan = ``;
+          const endStationNaptan = ``;
+          const viaStationNaptans = ``;
+          const individualStopIds = ``;
+          return (
+            <li key={index} className="border-4 my-6 p-2">
+              {/* <Link key={index} href="/show-route"> */}
+              {/*?startStationNaptan=940GZZLUACY&endStationNaptan=940GZZLUEAN&viaStationNaptans=940GZZLUEUS,940GZZLUOXC,&individualStopIds=9400ZZLUACY1,9400ZZLUEUS3,9400ZZLUEUS6,9400ZZLUOXC6,9400ZZLUOXC5,9400ZZLUEAN2 */}
+              <ul>
+                {Object.entries(route.data).map(([route_step, step_detail]) => (
+                  <li key={route_step}>
+                    {Object.entries(step_detail)
+                      .filter(([key, _]) => {
+                        if (key !== "lineId") {
+                          return true;
+                        }
+                      })
+                      .map(([key, value]) => (
+                        <>
+                          {key}={value}
+                        </>
+                      ))}
+                  </li>
+                ))}
+              </ul>
+              {/* </Link> */}
+            </li>
+          );
+        })}
       </ul>
     );
   }
