@@ -44,7 +44,6 @@ export async function getServerSideProps(params) {
   ]);
 
   const stationStarts = [startStationCommonName, ...viaStationsCommonNames];
-  console.log(stationStarts);
 
   const instructions = routeData.map((instruction, index) => {
     const side =
