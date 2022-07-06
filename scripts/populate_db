@@ -10,9 +10,24 @@ set -e
 # (In our GitHub Actions workflows, we set environment variables in the workflow YML files directly.)
 # https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
 #
+
+while getopts ":d" o; do 
+  case "${o}" in 
+    d)
+      deploy=true
+      ;;
+  esac
+done
+
 if [ -z "$GITHUB_ACTIONS" ]
 then
   . "./.env.development.local"
+fi
+
+if [ "$deploy" = true ] 
+then 
+  echo 'time to deployment'
+  DATABASE_URL=$DEPLOY_DB_URL
 fi
 
 if [ -z "$DATABASE_URL" ]
