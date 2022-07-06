@@ -46,21 +46,26 @@ export async function getServerSideProps({ req, res }) {
   }
   const stationNaptansToName = {};
   const lineIdToName = {};
-  await Promise.all([ 
+  await Promise.all([
     getAllStations().then((resolve) =>
-    resolve.map((station) => {
-      stationNaptansToName[station.station_naptan] = station.common_name_short;
+      resolve.map((station) => {
+        stationNaptansToName[station.station_naptan] =
+          station.common_name_short;
       })
     ),
-    getAllLines().then(resolve => {
-      resolve.map((line) => lineIdToName[line.id] = line.name)
-    })
-  ])
+    getAllLines().then((resolve) => {
+      resolve.map((line) => (lineIdToName[line.id] = line.name));
+    }),
+  ]);
 
   return { props: { savedRoutes, stationNaptansToName, lineIdToName } };
 }
 
-export default function SavedRoutes({ savedRoutes, stationNaptansToName, lineIdToName }) {
+export default function SavedRoutes({
+  savedRoutes,
+  stationNaptansToName,
+  lineIdToName,
+}) {
   //console.log(savedRoutes);
   // savedRoutes will be an empty array if the user has no saved routes,
   // and null if the user has no sid cookie. So check for both.
@@ -83,7 +88,7 @@ export default function SavedRoutes({ savedRoutes, stationNaptansToName, lineIdT
             } else if (routeDatum[1]?.stationNaptan) {
               viaStationNaptans.push(routeDatum[1].stationNaptan);
             } else if (routeDatum[1]?.lineId) {
-              lineTaken.push(routeDatum[1].lineId)
+              lineTaken.push(routeDatum[1].lineId);
             }
           });
           const href = `/show-route?startStationNaptan=${startStationNaptan}&endStationNaptan=${endStationNaptan}&viaStationNaptans=${viaStationNaptans.join(
@@ -102,12 +107,21 @@ export default function SavedRoutes({ savedRoutes, stationNaptansToName, lineIdT
                         (station) => stationNaptansToName[station]
                       )}
                     />
-                    {lineTaken.map((lineId) => {
-                        return <span className={lineId}>{lineIdToName[lineId]}</span>
-                      })}
+                    {lineTaken.map((lineId, index) => {
+                      return (
+                        <span key={index} className={lineId}>
+                          {lineIdToName[lineId]}
+                        </span>
+                      );
+                    })}
                   </ul>
                 </a>
               </Link>
+              <form method="POST" action="../api/delete-saved-route">
+                <button name="route_id" value={route.route_id}>
+                  <span className="central"> DELETE </span>
+                </button>
+              </form>
             </li>
           );
         })}
