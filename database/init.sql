@@ -85,12 +85,24 @@ CREATE TABLE session_routes (
   route_id INTEGER REFERENCES routes (id) NOT NULL
 );
 
-CREATE TABLE route_feedback (
+CREATE TABLE platform_exits_feedback (
   id SERIAL PRIMARY KEY,
   sid TEXT REFERENCES sessions (sid) NOT NULL,
-  route_id INTEGER REFERENCES routes (id) NOT NULL,
+  -- The user is giving feedback on a platform exit, not a route :)
+  platform_exits_id INTEGER REFERENCES platform_exits (id) NOT NULL,
+  -- If the user is giving feedback on the final leg of a journey,
+  -- it means they're exiting the station, so we don't need to link their
+  -- feedback to an exit_interchange. But if they're on an interchange leg,
+  -- we need to record their feedback about the platform_exit that's specifically
+  -- related to this interchange!
+  exit_interchanges_id INTEGER REFERENCES exit_interchanges (id),
   -- If the user says a route was correct(/it worked for them), record "true"
-  correct BOOLEAN NOT NULL
+  correct BOOLEAN NOT NULL,
+  new_carriage_from_front INTEGER,
+  new_door_from_front INTEGER,
+  new_platform_train_direction TEXT
+  -- It's tricky to get feedback on side because it implies train directions/platform data is wrong!
+  -- new_side 
 );
 
 -- Creating idx function that will order the return based on the input of the array rather than by the id

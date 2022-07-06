@@ -14,6 +14,7 @@ import {
 } from "../database/model.js";
 
 import { useState, useEffect } from "react";
+import MainFeedbackButton from "../components/MainFeedbackButton";
 
 const toCommonNameShort = (resolve) => {
   return resolve.map((name) => name.common_name_short);
@@ -134,12 +135,10 @@ export default function StartToVia({ instructions, stationNames, sid }) {
         ))}
       </ul>
 
-      <a
-        className="bg-green-400 rounded py-1 px-2 hover:bg-green-500"
-        onClick={() => setFeedbackMode(!feedbackMode)}
-      >
-        {feedbackMode ? <>Now submitting feedback</> : <>Is this correct?</>}
-      </a>
+      <MainFeedbackButton
+        feedbackMode={feedbackMode}
+        setFeedbackMode={setFeedbackMode}
+      />
     </>
   );
 }
