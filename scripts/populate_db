@@ -11,6 +11,7 @@ set -e
 # https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
 #
 
+# set -d flag for deployment command: ./scripts/populate_db -d
 while getopts ":d" o; do 
   case "${o}" in 
     d)
