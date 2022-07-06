@@ -77,6 +77,10 @@ export async function getServerSideProps(params) {
     getRouteByIndividualStopIds(platforms),
   ]);
 
+  // console.log("\n\nmy log\n\n");
+  // console.log(routeData);
+  // console.log("\n\nend of my log\n\n");
+
   const stationStarts = [startStationCommonName, ...viaStationsCommonNames];
 
   const instructions = routeData.map((instruction, index) => {
@@ -102,9 +106,10 @@ export async function getServerSideProps(params) {
     end: endStationCommonName,
     vias: viaStationsCommonNames,
   };
-  console.log(routeData);
+
   return {
     props: {
+      routeData,
       instructions,
       stationNames,
       sid,
@@ -112,13 +117,19 @@ export async function getServerSideProps(params) {
   };
 }
 
-export default function StartToVia({ instructions, stationNames, sid }) {
+export default function StartToVia({
+  routeData,
+  instructions,
+  stationNames,
+  sid,
+}) {
   const [feedbackMode, setFeedbackMode] = useState(false);
-  useEffect(() => {
-    console.log("hiya");
-  }, [feedbackMode]);
 
-  // console.log("query", query);
+  // console.log("instructions:");
+  // console.log(instructions);
+  // console.log("routedata:");
+  // console.log(routeData);
+
   return (
     <>
       <FromToVia
@@ -131,6 +142,7 @@ export default function StartToVia({ instructions, stationNames, sid }) {
           <Instruction
             key={index}
             instruction={instruction}
+            routeData={routeData[index]}
             feedbackMode={feedbackMode}
             sid={sid}
           />

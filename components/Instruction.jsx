@@ -1,4 +1,13 @@
-export default function Instruction({ instruction, feedbackMode, sid }) {
+import { useState, useEffect } from "react";
+
+export default function Instruction({
+  instruction,
+  routeData,
+  feedbackMode,
+  sid,
+}) {
+  const [correctFeedback, setCorrectFeedback] = useState(false);
+
   function feedbackCorrect(obj) {
     // console.log(obj);
     // fetch("/api/feedback", { method: "POST", body: JSON.stringify(obj) })
@@ -12,6 +21,7 @@ export default function Instruction({ instruction, feedbackMode, sid }) {
 
     // Get the data from the form
     const data = {
+      platform_exits_id: event.target.platform_exits_id.value,
       carriage: event.target.carriage.value,
       door: event.target.door.value,
       train_direction: event.target.train_direction.value,
@@ -65,6 +75,11 @@ export default function Instruction({ instruction, feedbackMode, sid }) {
       {feedbackMode ? (
         <div>
           <form action="/api/feedback" method="post" onSubmit={handleSubmit}>
+            <input
+              type="hidden"
+              name="platform_exits_id"
+              value={routeData.id}
+            />
             <input type="hidden" name="carriage" value={instruction.carriage} />
             <input type="hidden" name="door" value={instruction.door} />
             <input

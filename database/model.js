@@ -95,54 +95,6 @@ async function getRouteByIndividualStopIds(stopIds) {
   return query2;
 }
 
-async function getPlatformExitsByIndividualStopIds(stopIds) {
-  const arrivalPoints = stopIds.filter((stopId, index) => index % 2 === 1);
-  const departurePoints = stopIds.filter((stopId, index) => index % 2 === 0);
-
-  const SELECT_PLATFORM_EXIT_ID = /* SQL */ `
-    SELECT platform_exit_id 
-    FROM exit_interchanges 
-    WHERE dest_platform_id = (
-      SELECT id 
-      FROM platforms 
-      WHERE individual_stop_id = $1
-    )
-  `;
-
-  const query1 = await Promise.all(
-    departurePoints.map((departurePoint) =>
-      db
-        .query(SELECT_PLATFORM_EXIT_ID, [departurePoint])
-        .then((res) => res.rows)
-    )
-  );
-  // For hard coded we get [[], [{id for exit interchange}]]
-
-  const SELECT_PLATFORM_EXITS = /* SQL */ `
-    SELECT *
-    FROM platform_exits
-    WHERE platform_id = (
-      SELECT id 
-      FROM platforms 
-      WHERE individual_stop_id = $1
-    )
-  `;
-
-  let SELECT_INTERCHANGE;
-  let SELECT_EXIT;
-  const query2 = await Promise.all(
-    arrivalPoints.map((arrivalPoint, index, arr) => {
-      if (index !== arr.length - 1) {
-        return query1[index + 1][0].platform_exit_id;
-      } else {
-        return 0;
-      }
-    })
-  );
-
-  return query2;
-}
-
 async function getStationNameByIndividualStopIds(stopIds) {
   const SELECT_STATION_NAMES = /* SQL */ `
     SELECT common_name_short 
@@ -207,16 +159,16 @@ async function getTrainDirectionFromIndividualStopPoints(stopIds) {
   return trainDirections.rows;
 }
 
-async function addFeedback(sid, platform_exits_id, exit_interchanges_id) {
+async function addFeedback(sid, platform_exits_id, correct) {
   const ADD_FEEDBACK = /* SQL */ `
-    INSERT INTO platform_exits_feedback (sid,platform_exits_id,exit_interchanges_id) 
-    VALUES ($1,$2,$3)
+    INSERT INTO platform_exits_feedback (sid, platform_exits_id, correct)
+    VALUES ($1, $2, $3)
     RETURNING id;
   `;
   const addedFeedback = await db.query(ADD_FEEDBACK, [
     sid,
     platform_exits_id,
-    exit_interchanges_id,
+    correct,
   ]);
   return addedFeedback;
 }
