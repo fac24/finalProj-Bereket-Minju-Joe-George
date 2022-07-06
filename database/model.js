@@ -9,7 +9,7 @@ async function getAllStations() {
 async function getAllLines() {
   const SELECT_ALL_LINES = /* SQL */ `SELECT * FROM lines`;
   const allLines = await db.query(SELECT_ALL_LINES);
-  return allLines.rows
+  return allLines.rows;
 }
 
 async function createSession(sid) {
@@ -25,7 +25,7 @@ async function getSession(sid) {
 }
 
 async function getSavedRoutes(sid) {
-  const SELECT_ROUTES = `SELECT data FROM session_routes LEFT JOIN routes ON session_routes.route_id = routes.id WHERE sid = $1;`;
+  const SELECT_ROUTES = `SELECT data, id AS route_id FROM session_routes LEFT JOIN routes ON session_routes.route_id = routes.id WHERE sid = $1;`;
   const routes = await db.query(SELECT_ROUTES, [sid]);
   return routes.rows;
 }
@@ -165,6 +165,41 @@ async function getTrainDirectionFromIndividualStopPoints(stopIds) {
   return trainDirections.rows;
 }
 
+async function postSavedRoute(routeObj, sid) {
+  // Check if route already there
+  const SELECT_ROUTE_ID = /*SQL*/ `SELECT id FROM routes WHERE data = $1`;
+  const INSERT_NEW_ROUTE = /* SQL */ `INSERT INTO routes (data) VALUES ($1) RETURNING id;`;
+  const route_id =
+    (await db
+      .query(SELECT_ROUTE_ID, [routeObj])
+      .then((resolve) => resolve.rows[0]?.id)) ||
+    // if not insert new route
+    (await db
+      .query(INSERT_NEW_ROUTE, [routeObj])
+      .then((resolve) => resolve.rows[0].id));
+
+  const INSERT_SESSION_ROUTE = /* SQL */ `INSERT INTO session_routes (sid, route_id) VALUES ($1, $2);`;
+  const savedRouteId = await db.query(INSERT_SESSION_ROUTE, [sid, route_id]);
+  return savedRouteId;
+}
+
+async function deleteSavedRoute(routeId, sid) {
+  const DELETE_ROUTE_FROM_session_routes = /*SQL*/ `DELETE FROM session_routes WHERE route_id = $1 AND sid = $2 RETURNING route_id`;
+  const route_id = await db
+    .query(DELETE_ROUTE_FROM_session_routes, [routeId, sid])
+    .then((resolve) => resolve.rows[0].route_id);
+  // This next bit is to check if any other sid has the same route and if so will go on to delete it from the routes table
+  const SELECT_ROUTE_BY_ID = /*SQL*/ `SELECT route_id FROM session_routes WHERE route_id = $1`;
+  const othersWithRoute = await db
+    .query(SELECT_ROUTE_BY_ID, [route_id])
+    .then((resolve) => resolve.rows);
+
+  const DELETE_ROUTE_FROM_routes = /*SQL*/ `DELETE FROM routes WHERE id = $1`;
+  if (othersWithRoute.length === 0) {
+    db.query(DELETE_ROUTE_FROM_routes, [route_id]);
+  }
+}
+
 /*
 
   Kinda pseudo-code about how to do the all-important exits query based on TfL's journey planning API response:
@@ -197,4 +232,6 @@ module.exports = {
   getStationCommonNamesFromNaptans,
   getPlatformDataFromIndividualStopPoints,
   getTrainDirectionFromIndividualStopPoints,
+  postSavedRoute,
+  deleteSavedRoute,
 };
