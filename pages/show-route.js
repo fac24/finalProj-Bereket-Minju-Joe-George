@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Cookies from "cookies";
 import crypto from "crypto";
 
@@ -103,7 +102,7 @@ export async function getServerSideProps(params) {
     end: endStationCommonName,
     vias: viaStationsCommonNames,
   };
-
+  console.log(routeData);
   return {
     props: {
       instructions,
@@ -115,6 +114,9 @@ export async function getServerSideProps(params) {
 
 export default function StartToVia({ instructions, stationNames, sid }) {
   const [feedbackMode, setFeedbackMode] = useState(false);
+  useEffect(() => {
+    console.log("hiya");
+  }, [feedbackMode]);
 
   // console.log("query", query);
   return (
