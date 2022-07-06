@@ -5,6 +5,7 @@ import Cookies from "cookies";
 
 import { getSession } from "../database/model";
 import FromToVia from "../components/FromToVia";
+import HiddenInputs from "../components/HiddenInputs";
 
 export async function getServerSideProps(params) {
   const cookieSigningKeys = [process.env.COOKIE_SECRET];
@@ -75,19 +76,21 @@ export default function NewRoute({
                   `${leg.departurePoint.individualStopId},${leg.arrivalPoint.individualStopId}`
               );
               return (
-                <Link
-                  key={index}
-                  href={`/show-route?startStationNaptan=${
-                    urlParams.startStation
-                  }&endStationNaptan=${
-                    urlParams.endStation
-                  }&viaStationNaptans=${journey.legs.map((leg, index, arr) => {
-                    if (index !== arr.length - 1) {
-                      return leg.arrivalPoint.naptanId;
-                    }
-                  })}&individualStopIds=${href.join(",")}`}
-                >
-                  <a>
+                <form key={index} action="../api/add-saved-route" method="POST">
+                  <button
+                    name="href"
+                    value={`/show-route?startStationNaptan=${
+                      urlParams.startStation
+                    }&endStationNaptan=${
+                      urlParams.endStation
+                    }&viaStationNaptans=${journey.legs.map(
+                      (leg, index, arr) => {
+                        if (index !== arr.length - 1) {
+                          return leg.arrivalPoint.naptanId;
+                        }
+                      }
+                    )}&individualStopIds=${href.join(",")}`}
+                  >
                     <li className="p-4 my-4 border flex">
                       <div className="border mr-4">
                         {journey.legs.map(
@@ -99,6 +102,7 @@ export default function NewRoute({
                             // Use the line name as hidden text for a11y
                             // Maybe use a table so we can vertically align interchanges and lines.
                             <div key={index}>
+                              <HiddenInputs leg={leg} />
                               <span
                                 className={
                                   leg.routeOptions[0].lineIdentifier?.id
@@ -125,8 +129,8 @@ export default function NewRoute({
                         )}
                       </ul>
                     </li>
-                  </a>
-                </Link>
+                  </button>
+                </form>
               );
             }
           )}
