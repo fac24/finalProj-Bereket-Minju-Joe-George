@@ -179,10 +179,17 @@ async function postSavedRoute(routeObj, sid) {
       .then((resolve) => resolve.rows[0].id));
 
   const INSERT_SESSION_ROUTE = /* SQL */ `INSERT INTO session_routes (sid, route_id) VALUES ($1, $2) RETURNING route_id;`;
-  const savedRouteId = await db.query(INSERT_SESSION_ROUTE, [sid, route_id]);
-  console.log(`model.js\n\n`);
-  console.log(savedRouteId.rows);
-  return savedRouteId.rows;
+
+  // session_routes table has unique constraint on combined sid and route_id
+  // (so that a user can't save a route twice)
+  // here we try to insert, but if it fails (because the user is saving a route they've already saved),
+  // then the catch will just log the error and the user will not see a problem.
+  try {
+    const savedRouteId = await db.query(INSERT_SESSION_ROUTE, [sid, route_id]);
+    return savedRouteId.rows;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function deleteSavedRoute(routeId, sid) {

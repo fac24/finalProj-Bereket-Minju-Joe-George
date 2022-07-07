@@ -50,7 +50,6 @@ export default async function addSavedRoute(req, res) {
   });
 
   const sid = await getOrCreateSid(req, res);
-  console.log(`\n\nmy log: ${sid} \n\nend of my log\n\n`);
   await postSavedRoute(JSON.stringify(routeObj), sid);
   return res.redirect(req.body.href);
 }
