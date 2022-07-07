@@ -1,7 +1,4 @@
-import Cookies from "cookies";
-import crypto from "crypto";
-
-import { getSession, createSession } from "../database/model";
+import { getOrCreateSid } from "../helpers/cookie";
 
 import FromToVia from "../components/FromToVia.jsx";
 import Instruction from "../components/Instruction.jsx";
@@ -20,32 +17,7 @@ const toCommonNameShort = (resolve) => {
 };
 
 export async function getServerSideProps(params) {
-  const cookieSigningKeys = [process.env.COOKIE_SECRET];
-
-  const cookies = new Cookies(params.req, params.res, {
-    keys: cookieSigningKeys,
-  });
-
-  // Get the user's sid cookie. (If it doesn't exit, set to null)
-  const sidCookie =
-    cookies.get("sid", { signed: true, sameSite: "strict" }) || null;
-  let sid;
-  // If the sid cookie is falsy, the user has no cookie, so set one
-  if (!sidCookie) {
-    // Generate unique sid and add to database
-    sid = await createSession(crypto.randomBytes(18).toString("base64"));
-
-    // Set the sid cookie
-    // cookies.set("sid", sid, { signed: true });
-
-    // Test sid:
-    cookies.set("sid", "anotherfakesessionid", { signed: true });
-  } else {
-    // The user has a cookie.
-
-    // Is their sid in our db?
-    sid = await getSession(sidCookie);
-  }
+  const sid = await getOrCreateSid(params.req, params.res);
 
   // The URL query string will look a bit like this:
   // /show-route?startStationNaptan=...&endStationNaptan=...&viaStationNaptans=...,...,&individualStopIds=...,...,...,...

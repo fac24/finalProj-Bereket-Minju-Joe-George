@@ -85,7 +85,7 @@ export default function Instruction({
               value={instruction.train_direction}
             />
             <input type="hidden" name="side" value={instruction.side} />
-            <input type="hidden" name="sid" value={sid.sid} />
+            <input type="hidden" name="sid" value={sid} />
             <input type="hidden" name="correct" value="true" />
             <button
               type="submit"
@@ -108,7 +108,7 @@ export default function Instruction({
               value={instruction.train_direction}
             />
             <input type="hidden" name="side" value={instruction.side} />
-            <input type="hidden" name="sid" value={sid.sid} />
+            <input type="hidden" name="sid" value={sid} />
             <input type="hidden" name="correct" value="false" />
             <button
               type="submit"
