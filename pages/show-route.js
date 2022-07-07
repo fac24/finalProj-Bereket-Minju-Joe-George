@@ -47,19 +47,19 @@ export async function getServerSideProps(params) {
 
   const instructions = routeData.map((instruction, index) => {
     const side =
-      departingPlatformData[index].train_direction ===
-      arrivalDirections[index].train_direction
+      departingPlatformData[index]?.train_direction ===
+      arrivalDirections[index]?.train_direction
         ? "the same side"
         : "opposite sides";
     return {
       stationStart: stationStarts[index],
-      carriage: instruction.carriage_from_front,
-      door: instruction.door_from_front,
-      line_id: departingPlatformData[index].line_id,
-      line_name: departingPlatformData[index].line_name,
-      line_direction: departingPlatformData[index].line_direction,
-      train_direction: departingPlatformData[index].train_direction,
-      side: side,
+      carriage: instruction?.carriage_from_front || null,
+      door: instruction?.door_from_front || null,
+      line_id: departingPlatformData[index]?.line_id || null,
+      line_name: departingPlatformData[index]?.line_name || null,
+      line_direction: departingPlatformData[index]?.line_direction || null,
+      train_direction: departingPlatformData[index]?.train_direction || null,
+      side: side || null,
     };
   });
 
@@ -85,11 +85,15 @@ export default function StartToVia({ instructions, stationNames }) {
         to={stationNames.end}
         vias={stationNames.vias}
       />
-      <ul>
-        {instructions.map((instruction, index) => (
-          <Instruction key={index} instruction={instruction} />
-        ))}
-      </ul>
+      {instructions[0]?.line_id === undefined ? (
+        <h3>Unfortunately no data is available for this route</h3>
+      ) : (
+        <ul>
+          {instructions.map((instruction, index) => (
+            <Instruction key={index} instruction={instruction} />
+          ))}
+        </ul>
+      )}
     </>
   );
 }
