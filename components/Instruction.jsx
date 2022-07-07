@@ -71,10 +71,14 @@ export default function Instruction({
         </p>
         <p>The train comes from your {instruction.train_direction} side </p>
         <p>Get on and off the train on {instruction.side}</p>
+        <p>
+          {routeData.correct_votes} out of {routeData.total_votes} said this was
+          correct
+        </p>
       </div>
       {feedbackMode ? (
         <div>
-          <form action="/api/feedback" method="post" onSubmit={handleSubmit}>
+          <form method="post" onSubmit={handleSubmit}>
             <input
               type="hidden"
               name="platform_exits_id"

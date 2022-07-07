@@ -1,6 +1,6 @@
 BEGIN;
 
-DROP TABLE IF EXISTS stations, lines, platforms, platform_line, platform_exits, exit_interchanges, sessions, routes, session_routes CASCADE;
+DROP TABLE IF EXISTS stations, lines, platforms, platform_line, platform_exits, exit_interchanges, sessions, routes, session_routes, sid_correct_votes CASCADE;
 
 -- For now, stations will be populated by our script scraping TfL API.
 CREATE TABLE stations (
@@ -49,7 +49,9 @@ CREATE TABLE platform_exits (
   platform_id INTEGER REFERENCES platforms (id) NOT NULL,
   carriage_from_front INTEGER NOT NULL, -- from front of train. 1 indexed, i.e. the first carriage is number 1
   door_from_front INTEGER NOT NULL, -- from front of carriage. Also 1 indexed
-  type INTEGER NOT NULL -- 0 = exit, 1 = interchange, 2 = both?. (Future-proof? e.g. 3 = lift, etc.)
+  type INTEGER NOT NULL, -- 0 = exit, 1 = interchange, 2 = both?. (Future-proof? e.g. 3 = lift, etc.)
+  correct_votes INTEGER NOT NULL,
+  total_votes INTEGER NOT NULL
 );
 
 CREATE TABLE exit_interchanges (
@@ -85,24 +87,28 @@ CREATE TABLE session_routes (
   route_id INTEGER REFERENCES routes (id) NOT NULL
 );
 
-CREATE TABLE platform_exits_feedback (
-  id SERIAL PRIMARY KEY,
-  sid TEXT REFERENCES sessions (sid) NOT NULL,
+--CREATE TABLE platform_exits_feedback (
+  --id SERIAL PRIMARY KEY,
   -- The user is giving feedback on a platform exit, not a route :)
-  platform_exits_id INTEGER REFERENCES platform_exits (id) NOT NULL,
+  --platform_exits_id INTEGER REFERENCES platform_exits (id) NOT NULL,
   -- If the user is giving feedback on the final leg of a journey,
   -- it means they're exiting the station, so we don't need to link their
   -- feedback to an exit_interchange. But if they're on an interchange leg,
   -- we need to record their feedback about the platform_exit that's specifically
   -- related to this interchange!
-  exit_interchanges_id INTEGER REFERENCES exit_interchanges (id),
+  --exit_interchanges_id INTEGER REFERENCES exit_interchanges (id),
   -- If the user says a route was correct(/it worked for them), record "true"
-  correct BOOLEAN NOT NULL,
-  new_carriage_from_front INTEGER,
-  new_door_from_front INTEGER,
-  new_platform_train_direction TEXT
+  --correct_votes INTEGER NOT NULL,
+  --new_carriage_from_front INTEGER,
+  --new_door_from_front INTEGER,
+  --new_platform_train_direction TEXT
   -- It's tricky to get feedback on side because it implies train directions/platform data is wrong!
   -- new_side 
+--);
+
+CREATE TABLE sid_correct_votes (
+  sid TEXT REFERENCES sessions (sid) NOT NULL,
+  platform_exit_id INTEGER REFERENCES platform_exits (id) NOT NULL
 );
 
 -- Creating idx function that will order the return based on the input of the array rather than by the id

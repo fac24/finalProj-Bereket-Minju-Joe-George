@@ -165,19 +165,22 @@ async function getTrainDirectionFromIndividualStopPoints(stopIds) {
   return trainDirections.rows;
 }
 
-async function addFeedback(sid, platform_exits_id, correct) {
-  const ADD_FEEDBACK = /* SQL */ `
-    INSERT INTO platform_exits_feedback (sid, platform_exits_id, correct)
-    VALUES ($1, $2, $3)
-    RETURNING id;
+async function addCorrectFeedback(sid, platform_exits_id) {
+  const UPDATE_FEEDBACK = /*SQL*/ `
+    UPDATE platform_exits
+    SET correct_votes = correct_votes + 1, total_votes = total_votes + 1
+    WHERE id = $1
   `;
-  const addedFeedback = await db.query(ADD_FEEDBACK, [
-    sid,
-    platform_exits_id,
-    correct,
+  const INSERT_FEEDBACK = /*SQL*/ `
+    INSERT INTO sid_correct_votes (sid, platform_exit_id) VALUES ($1, $2)
+  `;
+
+  await Promise.all([
+    db.query(INSERT_FEEDBACK, [sid, platform_exits_id]),
+    db.query(UPDATE_FEEDBACK, [platform_exits_id]),
   ]);
-  return addedFeedback;
 }
+
 async function postSavedRoute(routeObj, sid) {
   // Check if route already there
   const SELECT_ROUTE_ID = /*SQL*/ `SELECT id FROM routes WHERE data = $1`;
@@ -245,7 +248,7 @@ module.exports = {
   getStationCommonNamesFromNaptans,
   getPlatformDataFromIndividualStopPoints,
   getTrainDirectionFromIndividualStopPoints,
-  addFeedback,
+  addCorrectFeedback,
   postSavedRoute,
   deleteSavedRoute,
 };
