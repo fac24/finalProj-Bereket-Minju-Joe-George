@@ -30,5 +30,5 @@ export async function getOrCreateSid(req, res) {
     sid = await getSession(sidCookie);
   }
 
-  return sid.sid;
+  return sid;
 }

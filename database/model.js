@@ -21,7 +21,7 @@ async function createSession(sid) {
 async function getSession(sid) {
   const SELECT_SESSION = `SELECT * FROM sessions WHERE sid = $1;`;
   const session = await db.query(SELECT_SESSION, [sid]);
-  return session.rows[0];
+  return session.rows[0].sid;
 }
 
 async function getSavedRoutes(sid) {
