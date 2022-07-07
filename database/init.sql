@@ -83,6 +83,10 @@ CREATE TABLE session_routes (
   route_id INTEGER REFERENCES routes (id) NOT NULL
 );
 
+-- Unique constraint for two columns (https://www.postgresqltutorial.com/postgresql-indexes/postgresql-unique-index/)
+CREATE UNIQUE INDEX idx_sid_routeid
+ON session_routes(sid, route_id);
+
 -- Creating idx function that will order the return based on the input of the array rather than by the id
 -- Found here - https://wiki.postgresql.org/wiki/Array_Index
 CREATE OR REPLACE FUNCTION idx(anyarray, anyelement)
