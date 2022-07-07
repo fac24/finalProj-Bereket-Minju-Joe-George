@@ -63,14 +63,14 @@ export async function getServerSideProps(params) {
         ? "the same side"
         : "opposite sides";
     return {
-      stationStart: stationStarts[index],
+      stationStart: stationStarts[index] || null,
       carriage: instruction?.carriage_from_front || null,
       door: instruction?.door_from_front || null,
       line_id: departingPlatformData[index]?.line_id || null,
       line_name: departingPlatformData[index]?.line_name || null,
       line_direction: departingPlatformData[index]?.line_direction || null,
       train_direction: departingPlatformData[index]?.train_direction || null,
-      side: side || null,
+      side: side,
     };
   });
 
