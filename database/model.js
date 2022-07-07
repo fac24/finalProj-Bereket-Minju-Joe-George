@@ -21,7 +21,7 @@ async function createSession(sid) {
 async function getSession(sid) {
   const SELECT_SESSION = `SELECT * FROM sessions WHERE sid = $1;`;
   const session = await db.query(SELECT_SESSION, [sid]);
-  return session.rows[0].sid;
+  return session.rows[0]?.sid;
 }
 
 async function getSavedRoutes(sid) {
@@ -178,9 +178,11 @@ async function postSavedRoute(routeObj, sid) {
       .query(INSERT_NEW_ROUTE, [routeObj])
       .then((resolve) => resolve.rows[0].id));
 
-  const INSERT_SESSION_ROUTE = /* SQL */ `INSERT INTO session_routes (sid, route_id) VALUES ($1, $2);`;
+  const INSERT_SESSION_ROUTE = /* SQL */ `INSERT INTO session_routes (sid, route_id) VALUES ($1, $2) RETURNING route_id;`;
   const savedRouteId = await db.query(INSERT_SESSION_ROUTE, [sid, route_id]);
-  return savedRouteId;
+  console.log(`model.js\n\n`);
+  console.log(savedRouteId.rows);
+  return savedRouteId.rows;
 }
 
 async function deleteSavedRoute(routeId, sid) {
