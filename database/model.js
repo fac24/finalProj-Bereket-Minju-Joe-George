@@ -21,7 +21,7 @@ async function createSession(sid) {
 async function getSession(sid) {
   const SELECT_SESSION = `SELECT * FROM sessions WHERE sid = $1;`;
   const session = await db.query(SELECT_SESSION, [sid]);
-  return session.rows[0];
+  return session.rows[0]?.sid;
 }
 
 async function getSavedRoutes(sid) {
@@ -225,9 +225,18 @@ async function postSavedRoute(routeObj, sid) {
       .query(INSERT_NEW_ROUTE, [routeObj])
       .then((resolve) => resolve.rows[0].id));
 
-  const INSERT_SESSION_ROUTE = /* SQL */ `INSERT INTO session_routes (sid, route_id) VALUES ($1, $2);`;
-  const savedRouteId = await db.query(INSERT_SESSION_ROUTE, [sid, route_id]);
-  return savedRouteId;
+  const INSERT_SESSION_ROUTE = /* SQL */ `INSERT INTO session_routes (sid, route_id) VALUES ($1, $2) RETURNING route_id;`;
+
+  // session_routes table has unique constraint on combined sid and route_id
+  // (so that a user can't save a route twice)
+  // here we try to insert, but if it fails (because the user is saving a route they've already saved),
+  // then the catch will just log the error and the user will not see a problem.
+  try {
+    const savedRouteId = await db.query(INSERT_SESSION_ROUTE, [sid, route_id]);
+    return savedRouteId.rows;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function deleteSavedRoute(routeId, sid) {

@@ -87,6 +87,8 @@ CREATE TABLE session_routes (
   route_id INTEGER REFERENCES routes (id) NOT NULL
 );
 
+-- Maybe should think about what to do for user form for corrective feedback but later ;)
+
 --CREATE TABLE platform_exits_feedback (
   --id SERIAL PRIMARY KEY,
   -- The user is giving feedback on a platform exit, not a route :)
@@ -111,6 +113,9 @@ CREATE TABLE sid_correct_votes (
   platform_exit_id INTEGER REFERENCES platform_exits (id) NOT NULL,
   correct BOOLEAN NOT NULL
 );
+-- Unique constraint for two columns (https://www.postgresqltutorial.com/postgresql-indexes/postgresql-unique-index/)
+CREATE UNIQUE INDEX idx_sid_routeid
+ON session_routes(sid, route_id);
 
 -- Creating idx function that will order the return based on the input of the array rather than by the id
 -- Found here - https://wiki.postgresql.org/wiki/Array_Index
