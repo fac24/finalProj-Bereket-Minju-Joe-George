@@ -50,6 +50,13 @@ export default function Instruction({
     // If server returns the name submitted, that means the form works.
     const result = await response.json();
 
+    // If the user has already voted correct or incorrect, the response will be "false".
+    // In that case, don't do anything.
+    // In any other case, run the useState updaters.
+    if (result !== false) {
+      setCorrectVotes(result.correct_votes);
+      setTotalVotes(result.total_votes);
+    }
     // console.log(result);
   };
 

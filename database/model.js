@@ -180,15 +180,18 @@ async function addFeedback(sid, platform_exits_id, correct) {
     --total votes always increases
     --correct votes only increases for true
     WHERE id = $2
+    RETURNING correct_votes, total_votes;
   `;
   const INSERT_FEEDBACK = /*SQL*/ `
     INSERT INTO sid_correct_votes (sid, platform_exit_id, correct) VALUES ($1, $2, $3)
   `;
   const voteAdd = correct ? 1 : 0;
-  await Promise.all([
+  const [_, votes] = await Promise.all([
     db.query(INSERT_FEEDBACK, [sid, platform_exits_id, correct]),
     db.query(UPDATE_FEEDBACK, [voteAdd, platform_exits_id]),
   ]);
+
+  return votes.rows[0];
 }
 
 async function updateFeedback(sid, platform_exit_id, correct) {
@@ -197,6 +200,7 @@ async function updateFeedback(sid, platform_exit_id, correct) {
     SET correct_votes = correct_votes + $1 
     -- the total number of votes hasn't changed so we don't update that
     WHERE id = $2
+    RETURNING correct_votes, total_votes;
     `;
   // True increases votes by 1
   // False decrease votes by 1
@@ -206,10 +210,12 @@ async function updateFeedback(sid, platform_exit_id, correct) {
     SET correct = NOT correct
     WHERE sid = $1 AND platform_exit_id = $2
   `;
-  await Promise.all([
+  const [votes] = await Promise.all([
     db.query(UPDATE_VOTE, [addVote, platform_exit_id]),
     db.query(UPDATE_FEEDBACK, [sid, platform_exit_id]),
   ]);
+
+  return votes.rows[0];
 }
 
 async function postSavedRoute(routeObj, sid) {
