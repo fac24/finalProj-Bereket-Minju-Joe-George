@@ -58,18 +58,18 @@ export async function getServerSideProps(params) {
 
   const instructions = routeData.map((instruction, index) => {
     const side =
-      departingPlatformData[index].train_direction ===
-      arrivalDirections[index].train_direction
+      departingPlatformData[index]?.train_direction ===
+      arrivalDirections[index]?.train_direction
         ? "the same side"
         : "opposite sides";
     return {
-      stationStart: stationStarts[index],
-      carriage: instruction.carriage_from_front,
-      door: instruction.door_from_front,
-      line_id: departingPlatformData[index].line_id,
-      line_name: departingPlatformData[index].line_name,
-      line_direction: departingPlatformData[index].line_direction,
-      train_direction: departingPlatformData[index].train_direction,
+      stationStart: stationStarts[index] || null,
+      carriage: instruction?.carriage_from_front || null,
+      door: instruction?.door_from_front || null,
+      line_id: departingPlatformData[index]?.line_id || null,
+      line_name: departingPlatformData[index]?.line_name || null,
+      line_direction: departingPlatformData[index]?.line_direction || null,
+      train_direction: departingPlatformData[index]?.train_direction || null,
       side: side,
     };
   });
@@ -110,22 +110,38 @@ export default function StartToVia({
         to={stationNames.end}
         vias={stationNames.vias}
       />
-      <ul id="all-instruction-legs">
-        {instructions.map((instruction, index) => (
-          <Instruction
-            key={index}
-            instruction={instruction}
-            routeData={routeData[index]}
-            feedbackMode={feedbackMode}
-            sid={sid}
-          />
-        ))}
-      </ul>
 
-      <MainFeedbackButton
-        feedbackMode={feedbackMode}
-        setFeedbackMode={setFeedbackMode}
-      />
+      {instructions[0]?.line_id === undefined ? (
+        <>
+          <p className="text-lg border mt-4 p-2 border-red-300 bg-red-50">
+            Sorry, we don't have any train exit advice for this route yet 😔
+          </p>
+          {/*
+          <p className="text-lg border mt-4 p-2 border-green-300 bg-green-50">
+            Would you like to add some? 😀 (Coming soon!)
+          </p>
+          */}
+        </>
+      ) : (
+        <>
+          <ul id="all-instruction-legs">
+            {instructions.map((instruction, index) => (
+              <Instruction
+                key={index}
+                instruction={instruction}
+                routeData={routeData[index]}
+                feedbackMode={feedbackMode}
+                sid={sid}
+              />
+            ))}
+          </ul>
+
+          <MainFeedbackButton
+            feedbackMode={feedbackMode}
+            setFeedbackMode={setFeedbackMode}
+          />
+        </>
+      )}
     </>
   );
 }
