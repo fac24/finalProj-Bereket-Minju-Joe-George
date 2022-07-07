@@ -56,7 +56,10 @@ export default function NewRoute({
         <ul id="all-possible-routes">
           {apiResponseData.journeys
             .filter((journey, index, arr) => {
-              if (journey.legs[journey.legs.length - 1].mode.id === "walking")
+              if (
+                journey.legs[0].mode.id === "walking" &&
+                journey.legs.length === 1
+              )
                 return false;
               return true;
             })
@@ -64,8 +67,8 @@ export default function NewRoute({
               for (let i = index + 1; i < arr.length; i++) {
                 for (let j = 0; j < journey.legs.length; j++) {
                   if (
-                    journey.legs[j].path.lineString ===
-                    arr[i].legs[j].path.lineString
+                    journey.legs[j]?.path.lineString ===
+                    arr[i].legs[j]?.path.lineString
                   )
                     return false;
                 }
