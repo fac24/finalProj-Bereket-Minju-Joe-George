@@ -19,7 +19,7 @@ export default function JourneyBox({ journey, startEndNames }) {
             <span className={`text-4xl ml-1.5 ${lineColour}`}>&nbsp;</span>
           </div>
           {index === arr.length - 1 ? (
-            <div className="flex content-end">
+            <div className="flex content-end mt-2.5">
               <div className="rounded-full border-4 border-black h-5 w-5 mt-2.5">
                 &nbsp;
               </div>
