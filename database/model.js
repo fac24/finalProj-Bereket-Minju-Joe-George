@@ -6,6 +6,12 @@ async function getAllStations() {
   return allStations.rows;
 }
 
+async function getAllLines() {
+  const SELECT_ALL_LINES = /* SQL */ `SELECT * FROM lines`;
+  const allLines = await db.query(SELECT_ALL_LINES);
+  return allLines.rows;
+}
+
 async function createSession(sid) {
   const CREATE_SESSION = `INSERT INTO sessions (sid) VALUES ($1) RETURNING sid;`;
   const session = await db.query(CREATE_SESSION, [sid]);
@@ -15,11 +21,11 @@ async function createSession(sid) {
 async function getSession(sid) {
   const SELECT_SESSION = `SELECT * FROM sessions WHERE sid = $1;`;
   const session = await db.query(SELECT_SESSION, [sid]);
-  return session.rows[0];
+  return session.rows[0]?.sid;
 }
 
 async function getSavedRoutes(sid) {
-  const SELECT_ROUTES = `SELECT data FROM session_routes LEFT JOIN routes ON session_routes.route_id = routes.id WHERE sid = $1;`;
+  const SELECT_ROUTES = `SELECT data, id AS route_id FROM session_routes LEFT JOIN routes ON session_routes.route_id = routes.id WHERE sid = $1;`;
   const routes = await db.query(SELECT_ROUTES, [sid]);
   return routes.rows;
 }
@@ -142,7 +148,7 @@ async function getPlatformDataFromIndividualStopPoints(stopIds) {
     FROM platforms, lines, platform_line
     WHERE (lines.id = platform_line.line_id AND platforms.id = platform_line.platform_id)
     AND platforms.individual_stop_id = ANY ($1)
-    ORDER BY idx($1, station_naptan)
+    ORDER BY idx($1, platforms.individual_stop_id)
   `;
   const platformData = await db.query(SELECT_PLATFORM_DATA, [stopIds]);
   return platformData.rows;
@@ -153,10 +159,54 @@ async function getTrainDirectionFromIndividualStopPoints(stopIds) {
     SELECT train_direction
     FROM platforms
     WHERE individual_stop_id = ANY ($1)
-    ORDER BY idx($1, station_naptan)
+    ORDER BY idx($1, individual_stop_id)
   `;
   const trainDirections = await db.query(SELECT_TRAIN_DIRECTION, [stopIds]);
   return trainDirections.rows;
+}
+
+async function postSavedRoute(routeObj, sid) {
+  // Check if route already there
+  const SELECT_ROUTE_ID = /*SQL*/ `SELECT id FROM routes WHERE data = $1`;
+  const INSERT_NEW_ROUTE = /* SQL */ `INSERT INTO routes (data) VALUES ($1) RETURNING id;`;
+  const route_id =
+    (await db
+      .query(SELECT_ROUTE_ID, [routeObj])
+      .then((resolve) => resolve.rows[0]?.id)) ||
+    // if not insert new route
+    (await db
+      .query(INSERT_NEW_ROUTE, [routeObj])
+      .then((resolve) => resolve.rows[0].id));
+
+  const INSERT_SESSION_ROUTE = /* SQL */ `INSERT INTO session_routes (sid, route_id) VALUES ($1, $2) RETURNING route_id;`;
+
+  // session_routes table has unique constraint on combined sid and route_id
+  // (so that a user can't save a route twice)
+  // here we try to insert, but if it fails (because the user is saving a route they've already saved),
+  // then the catch will just log the error and the user will not see a problem.
+  try {
+    const savedRouteId = await db.query(INSERT_SESSION_ROUTE, [sid, route_id]);
+    return savedRouteId.rows;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function deleteSavedRoute(routeId, sid) {
+  const DELETE_ROUTE_FROM_session_routes = /*SQL*/ `DELETE FROM session_routes WHERE route_id = $1 AND sid = $2 RETURNING route_id`;
+  const route_id = await db
+    .query(DELETE_ROUTE_FROM_session_routes, [routeId, sid])
+    .then((resolve) => resolve.rows[0].route_id);
+  // This next bit is to check if any other sid has the same route and if so will NOT delete it from the routes table
+  const SELECT_ROUTE_BY_ID = /*SQL*/ `SELECT route_id FROM session_routes WHERE route_id = $1`;
+  const othersWithRoute = await db
+    .query(SELECT_ROUTE_BY_ID, [route_id])
+    .then((resolve) => resolve.rows);
+
+  const DELETE_ROUTE_FROM_routes = /*SQL*/ `DELETE FROM routes WHERE id = $1`;
+  if (othersWithRoute.length === 0) {
+    await db.query(DELETE_ROUTE_FROM_routes, [route_id]);
+  }
 }
 
 /*
@@ -181,6 +231,7 @@ async function getTrainDirectionFromIndividualStopPoints(stopIds) {
 
 module.exports = {
   getAllStations,
+  getAllLines,
   createSession,
   getSession,
   getSavedRoutes,
@@ -190,4 +241,6 @@ module.exports = {
   getStationCommonNamesFromNaptans,
   getPlatformDataFromIndividualStopPoints,
   getTrainDirectionFromIndividualStopPoints,
+  postSavedRoute,
+  deleteSavedRoute,
 };

@@ -75,13 +75,17 @@ CREATE TABLE routes (
   --   platform: ",
   --   end_station: station_naptan [could also be "exit_station"]
   -- }
-  data JSON NOT NULL
+  data JSONB UNIQUE NOT NULL -- JSONB stores it as binary but allows us to check the uniqueness of json as JSON did not allow us to.
 );
 
 CREATE TABLE session_routes (
   sid TEXT REFERENCES sessions (sid) NOT NULL,
   route_id INTEGER REFERENCES routes (id) NOT NULL
 );
+
+-- Unique constraint for two columns (https://www.postgresqltutorial.com/postgresql-indexes/postgresql-unique-index/)
+CREATE UNIQUE INDEX idx_sid_routeid
+ON session_routes(sid, route_id);
 
 -- Creating idx function that will order the return based on the input of the array rather than by the id
 -- Found here - https://wiki.postgresql.org/wiki/Array_Index

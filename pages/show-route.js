@@ -18,6 +18,7 @@ export async function getServerSideProps(params) {
 
   // Split comma-delimited lists in URL query strings into new arrays
   const platforms = params.query.individualStopIds.split(",");
+
   const vias = params.query.viaStationNaptans.split(",");
   const departingPlatformIsds = platforms.filter((_, index) => index % 2 === 0);
   const arrivingPlatformIsds = platforms.filter((_, index) => index % 2 === 1);

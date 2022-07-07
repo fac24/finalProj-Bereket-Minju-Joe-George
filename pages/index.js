@@ -2,6 +2,7 @@ import Link from "next/link";
 import OurSelect from "../components/OurSelect.jsx";
 import useLocation from "../components/Hooks/useLocation.jsx";
 import { getAllStations } from "../database/model";
+import { getOrCreateSid } from "../helpers/cookie";
 
 const BASE_URL = `https://api.tfl.gov.uk/`;
 
@@ -13,7 +14,9 @@ const BASE_URL = `https://api.tfl.gov.uk/`;
 //   { station_naptan: "940GZZLUBMY", common_name_short: "Bermondsey" },
 // ];
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req, res }) {
+  const sid = await getOrCreateSid(req, res);
+
   const stationData = await getAllStations();
 
   // #######GET MODEL.JS TO GET THE STATIONDATA
