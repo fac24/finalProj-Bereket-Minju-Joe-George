@@ -51,41 +51,5 @@ INSERT INTO sessions (sid) VALUES
   ('MYFAKESESSIONID'),
   ('anotherfakesessionid');
 
--- INSERT INTO routes (name) VALUES
---   ('Finsbury park to Bermondsey via Greenpark'),
---   ('Whitechapel to Finsbury park via Kings cross');
-
-INSERT INTO routes (data) VALUES
-  ('{
-      "0": {"startStationNaptan": "940GZZLUKSX"},
-      "1": {"platformIndividualStopId": "9400ZZLUKSX1"},
-      "2": {"lineId": "victoria"},
-      "3": {"platformIndividualStopId": "9400ZZLUFPK3"},
-      "4": {"endStationNaptan": "9400ZZLUFPK"}
-  }'),
-  ('{
-      "0": {"startStationNaptan": "9400ZZLUFPK"},
-      "1": {"platformIndividualStopId": "9400ZZLUFPK4"},
-      "2": {"lineId": "victoria"},
-      "3": {"platformIndividualStopId": "9400ZZLUKSX2"},
-      "4": {"endStationNaptan": "940GZZLUKSX"}
-  }'),
-  ('{
-      "0": {"startStationNaptan": "940GZZLUWTA"},
-      "1": {"platformIndividualStopId": "9400ZZLUWTA1"},
-      "2": {"lineId": "central"},
-      "3": {"platformIndividualStopId": "9400ZZLUOXC1"},
-      "4": {"stationNaptan": "940GZZLUOXC"},
-      "5": {"platformIndividualStopId": "9400ZZLUOXC6"},
-      "6": {"lineId": "victoria"},
-      "7": {"platformIndividualStopId": "9400ZZLUVIC3"},
-      "8": {"endStationNaptan": "940GZZLUVIC"}
-  }');
-
-INSERT INTO session_routes (sid, route_id) VALUES
-  ('MYFAKESESSIONID', 1),
-  ('anotherfakesessionid', 1),
-  ('anotherfakesessionid', 2),
-  ('anotherfakesessionid', 3);
 
 COMMIT;

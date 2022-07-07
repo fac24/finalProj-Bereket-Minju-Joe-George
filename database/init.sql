@@ -76,7 +76,7 @@ CREATE TABLE routes (
   --   platform: ",
   --   end_station: station_naptan [could also be "exit_station"]
   -- }
-  data JSON NOT NULL
+  data JSONB UNIQUE NOT NULL -- JSONB stores it as binary but allows us to check the uniqueness of json as JSON did not allow us to.
 );
 
 -- For saving routes to individual sessions (users):
