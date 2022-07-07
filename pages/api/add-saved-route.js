@@ -1,5 +1,5 @@
 import { postSavedRoute } from "../../database/model";
-import Cookies from "cookies";
+import { getOrCreateSid } from "../../helpers/cookie";
 
 // just so don't have to copy this check each time
 const checkArray = (arrToCheck) => {
@@ -49,10 +49,8 @@ export default async function addSavedRoute(req, res) {
     }
   });
 
-  const cookieSigningKeys = [process.env.COOKIE_SECRET];
-  // Get the sid to be able to save to the db for saved routes
-  const cookies = new Cookies(req, res, { keys: cookieSigningKeys });
-  const sid = cookies.get("sid", { signed: true, sameSite: "strict" });
+  const sid = await getOrCreateSid(req, res);
+  console.log(`\n\nmy log: ${sid} \n\nend of my log\n\n`);
   await postSavedRoute(JSON.stringify(routeObj), sid);
   return res.redirect(req.body.href);
 }
