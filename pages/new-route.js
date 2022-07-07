@@ -3,16 +3,6 @@ import FromToVia from "../components/FromToVia";
 import HiddenInputs from "../components/HiddenInputs";
 
 const baseJourneyURL = "https://api.tfl.gov.uk/Journey/JourneyResults/";
-<<<<<<< HEAD
-import Cookies from "cookies";
-
-import { getSession } from "../database/model";
-import FromToVia from "../components/FromToVia";
-import JourneyBox from "../components/JourneyBox";
-
-import { removeExcessUnderground } from "../components/functions";
-=======
->>>>>>> 50a4340e7f98dcba93f4850b1ca59fa2b05929a6
 
 export async function getServerSideProps(params) {
   const sid = await getOrCreateSid(params.req, params.res);
