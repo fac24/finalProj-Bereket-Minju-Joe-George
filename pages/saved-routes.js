@@ -28,10 +28,10 @@ export async function getServerSideProps({ req, res }) {
     const sid = await createSession(crypto.randomBytes(18).toString("base64"));
 
     // Set the sid cookie
-    // cookies.set("sid", sid, { signed: true });
+    cookies.set("sid", sid, { signed: true });
 
     // Test sid:
-    cookies.set("sid", "anotherfakesessionid", { signed: true });
+    // cookies.set("sid", "anotherfakesessionid", { signed: true });
   } else {
     // The user has a cookie.
 
@@ -73,7 +73,7 @@ export default function SavedRoutes({
     return <p>No saved routes</p>;
   } else {
     return (
-      <ul>
+      <ul id="all-saved-routes">
         {savedRoutes.map((route, index) => {
           const routeData = Object.entries(route.data);
           const startStationNaptan = routeData[0][1].startStationNaptan;
@@ -96,30 +96,38 @@ export default function SavedRoutes({
           )}&individualStopIds=${individualStopIds.join(",")}`;
 
           return (
-            <li key={index} className="border-4 my-6 p-2">
+            <li key={index} className="border-4 my-6 p-2 saved-route flex">
               <Link href={href}>
-                <a>
-                  <ul>
-                    <FromToVia
-                      from={stationNaptansToName[startStationNaptan]}
-                      to={stationNaptansToName[endStationNaptan]}
-                      vias={viaStationNaptans.map(
-                        (station) => stationNaptansToName[station]
-                      )}
-                    />
+                <a className="saved-route-link flex">
+                  <div className="route-lines mr-2">
                     {lineTaken.map((lineId, index) => {
                       return (
-                        <span key={index} className={lineId}>
+                        <span
+                          key={index}
+                          className={lineId + " block px-1.5 py-1"}
+                        >
                           {lineIdToName[lineId]}
                         </span>
                       );
                     })}
-                  </ul>
+                  </div>
+                  <FromToVia
+                    from={stationNaptansToName[startStationNaptan]}
+                    to={stationNaptansToName[endStationNaptan]}
+                    vias={viaStationNaptans.map(
+                      (station) => stationNaptansToName[station]
+                    )}
+                  />
                 </a>
               </Link>
               <form method="POST" action="../api/delete-saved-route">
-                <button name="route_id" value={route.route_id}>
-                  <span className="central"> DELETE </span>
+                <button
+                  name="route_id"
+                  value={route.route_id}
+                  aria-label="Delete"
+                  className="border-red-300 border rounded px-2 py-1 text-red-800 hover:text-white hover:bg-red-400 hover:border-red-400"
+                >
+                  Delete
                 </button>
               </form>
             </li>
