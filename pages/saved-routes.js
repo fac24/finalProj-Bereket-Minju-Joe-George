@@ -1,49 +1,19 @@
-import Cookies from "cookies";
-import crypto from "crypto";
-import {
-  createSession,
-  getSession,
-  getSavedRoutes,
-  getAllStations,
-  getAllLines,
-} from "../database/model";
+import { getSavedRoutes, getAllStations, getAllLines } from "../database/model";
 import Link from "next/link";
 import FromToVia from "../components/FromToVia";
+import { getOrCreateSid } from "../helpers/cookie";
 
 export async function getServerSideProps({ req, res }) {
-  const cookieSigningKeys = [process.env.COOKIE_SECRET];
-
-  const cookies = new Cookies(req, res, { keys: cookieSigningKeys });
-
-  // Get the user's sid cookie. (If it doesn't exit, set to null)
-  const sidCookie =
-    cookies.get("sid", { signed: true, sameSite: "strict" }) || null;
+  const sid = await getOrCreateSid(req, res);
 
   // Setup a variable for the saved routes (to be passed as a prop)
   let savedRoutes = null;
 
-  // If the sid cookie is falsy, the user has no cookie, so set one
-  if (!sidCookie) {
-    // Generate unique sid and add to database
-    const sid = await createSession(crypto.randomBytes(18).toString("base64"));
-
-    // Set the sid cookie
-    cookies.set("sid", sid, { signed: true });
-
-    // Test sid:
-    // cookies.set("sid", "anotherfakesessionid", { signed: true });
-  } else {
-    // The user has a cookie.
-
-    // Is their sid in our db?
-    const sid = await getSession(sidCookie);
-
-    // If not, don't bother running the saved routes query
-    // (This is an unnecessary optimisation right now! :)
-    if (sid !== undefined) {
-      savedRoutes = await getSavedRoutes(sidCookie);
-    }
+  // If we don't have a sid, don't run the saved routes query
+  if (sid !== undefined) {
+    savedRoutes = await getSavedRoutes(sid);
   }
+
   const stationNaptansToName = {};
   const lineIdToName = {};
   await Promise.all([

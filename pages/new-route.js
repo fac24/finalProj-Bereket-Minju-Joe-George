@@ -1,23 +1,11 @@
-import Link from "next/link";
-
-const baseJourneyURL = "https://api.tfl.gov.uk/Journey/JourneyResults/";
-import Cookies from "cookies";
-
-import { getSession } from "../database/model";
+import { getOrCreateSid } from "../helpers/cookie";
 import FromToVia from "../components/FromToVia";
 import HiddenInputs from "../components/HiddenInputs";
 
+const baseJourneyURL = "https://api.tfl.gov.uk/Journey/JourneyResults/";
+
 export async function getServerSideProps(params) {
-  const cookieSigningKeys = [process.env.COOKIE_SECRET];
-
-  const cookies = new Cookies(params.req, params.res, {
-    keys: cookieSigningKeys,
-  });
-
-  const sidCookie =
-    cookies.get("sid", { signed: true, sameSite: "strict" }) || null;
-
-  const sid = await getSession(sidCookie);
+  const sid = await getOrCreateSid(params.req, params.res);
 
   const formData = params.query;
   const isStepFree = formData.stepFree || null;
