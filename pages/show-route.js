@@ -110,7 +110,7 @@ export default function StartToVia({
         to={stationNames.end}
         vias={stationNames.vias}
       />
-      <ul>
+      <ul id="all-instruction-legs">
         {instructions.map((instruction, index) => (
           <Instruction
             key={index}

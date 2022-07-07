@@ -6,11 +6,14 @@ export default function Instruction({
   feedbackMode,
   sid,
 }) {
-  const [correctFeedback, setCorrectFeedback] = useState(false);
+  // const [correctFeedback, setCorrectFeedback] = useState(false);
+  const [correctVotes, setCorrectVotes] = useState(routeData.correct_votes);
+  const [totalVotes, setTotalVotes] = useState(routeData.total_votes);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("form submitted");
+
+    // console.log("form submitted");
     // Get the data from the form
     const data = {
       platform_exits_id: event.target.platform_exits_id.value,
@@ -47,30 +50,38 @@ export default function Instruction({
     // If server returns the name submitted, that means the form works.
     const result = await response.json();
 
-    console.log(result);
+    // console.log(result);
   };
 
   return (
-    <li className="p-4 my-4 border">
-      <div className="border mr-4">
-        <h3>{instruction.stationStart}</h3>
+    <li className="p-2 my-4 border instruction-leg">
+      <div className="mr-4 instruction-container">
+        <h3 className="font-bold">{instruction.stationStart}</h3>
         <h4>
-          <span className={instruction.line_id}>{instruction.line_name}</span>
-          &#8226;
+          <span
+            className={instruction.line_id + " inline-block px-2 py-0.5 mr-2"}
+          >
+            {instruction.line_name}
+          </span>
           {instruction.line_direction}
         </h4>
-        <p>
+        <p className="border rounded bg-gray-100 p-2">
           Carriage {instruction.carriage}, door {instruction.door}
         </p>
-        <p>The train comes from your {instruction.train_direction} side </p>
-        <p>Get on and off the train on {instruction.side}</p>
         <p>
-          {routeData.correct_votes} out of {routeData.total_votes} said this was
-          correct
+          The train comes from your{" "}
+          <span className="font-bold">{instruction.train_direction}</span> side.
+        </p>
+        <p>
+          Get on and off the train on{" "}
+          <span className="font-bold">{instruction.side}</span>.
+        </p>
+        <p className="bg-amber-100 px-2 py-1 text-amber-800 text-sm">
+          {correctVotes} out of {totalVotes} said this was correct
         </p>
       </div>
       {feedbackMode ? (
-        <div>
+        <div className="feedback-forms-container">
           <form method="post" onSubmit={handleSubmit}>
             <input
               type="hidden"
@@ -89,7 +100,7 @@ export default function Instruction({
             <input type="hidden" name="correct" value="true" />
             <button
               type="submit"
-              className="border rounded shadow-md bg-green-300 px-2 py-1"
+              className="border rounded shadow-sm bg-green-300 px-2 py-1"
             >
               Yes, this worked
             </button>
@@ -112,7 +123,7 @@ export default function Instruction({
             <input type="hidden" name="correct" value="false" />
             <button
               type="submit"
-              className="border rounded shadow-md bg-red-300 px-2 py-1"
+              className="border rounded shadow-sm bg-red-300 px-2 py-1"
             >
               No, this was wrong
             </button>

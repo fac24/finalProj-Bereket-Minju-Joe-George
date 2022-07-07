@@ -1,5 +1,6 @@
 export default function MainFeedbackButton({ feedbackMode, setFeedbackMode }) {
-  let myClassName = "rounded py-1 px-2 cursor-pointer ";
+  let myClassName =
+    "block rounded py-1 px-2 cursor-pointer mt-6 mx-auto max-w-fit ";
 
   if (feedbackMode) {
     myClassName += "bg-slate-600 hover:bg-slate-700 text-white";
