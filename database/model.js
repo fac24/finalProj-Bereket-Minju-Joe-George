@@ -188,7 +188,7 @@ async function deleteSavedRoute(routeId, sid) {
   const route_id = await db
     .query(DELETE_ROUTE_FROM_session_routes, [routeId, sid])
     .then((resolve) => resolve.rows[0].route_id);
-  // This next bit is to check if any other sid has the same route and if so will go on to delete it from the routes table
+  // This next bit is to check if any other sid has the same route and if so will NOT delete it from the routes table
   const SELECT_ROUTE_BY_ID = /*SQL*/ `SELECT route_id FROM session_routes WHERE route_id = $1`;
   const othersWithRoute = await db
     .query(SELECT_ROUTE_BY_ID, [route_id])
@@ -196,7 +196,7 @@ async function deleteSavedRoute(routeId, sid) {
 
   const DELETE_ROUTE_FROM_routes = /*SQL*/ `DELETE FROM routes WHERE id = $1`;
   if (othersWithRoute.length === 0) {
-    db.query(DELETE_ROUTE_FROM_routes, [route_id]);
+    await db.query(DELETE_ROUTE_FROM_routes, [route_id]);
   }
 }
 
