@@ -1,3 +1,5 @@
+import { getOrCreateSid } from "../helpers/cookie";
+
 import FromToVia from "../components/FromToVia.jsx";
 import Instruction from "../components/Instruction.jsx";
 import {
@@ -7,11 +9,16 @@ import {
   getTrainDirectionFromIndividualStopPoints,
 } from "../database/model.js";
 
+import { useState, useEffect } from "react";
+import MainFeedbackButton from "../components/MainFeedbackButton";
+
 const toCommonNameShort = (resolve) => {
   return resolve.map((name) => name.common_name_short);
 };
 
 export async function getServerSideProps(params) {
+  const sid = await getOrCreateSid(params.req, params.res);
+
   // The URL query string will look a bit like this:
   // /show-route?startStationNaptan=...&endStationNaptan=...&viaStationNaptans=...,...,&individualStopIds=...,...,...,...
   // See the big <Link>in new-route.js for the exact format of the URL query string.
@@ -43,6 +50,10 @@ export async function getServerSideProps(params) {
     getRouteByIndividualStopIds(platforms),
   ]);
 
+  // console.log("\n\nmy log\n\n");
+  // console.log(routeData);
+  // console.log("\n\nend of my log\n\n");
+
   const stationStarts = [startStationCommonName, ...viaStationsCommonNames];
 
   const instructions = routeData.map((instruction, index) => {
@@ -71,13 +82,27 @@ export async function getServerSideProps(params) {
 
   return {
     props: {
+      routeData,
       instructions,
       stationNames,
+      sid,
     },
   };
 }
 
-export default function StartToVia({ instructions, stationNames }) {
+export default function StartToVia({
+  routeData,
+  instructions,
+  stationNames,
+  sid,
+}) {
+  const [feedbackMode, setFeedbackMode] = useState(false);
+
+  // console.log("instructions:");
+  // console.log(instructions);
+  // console.log("routedata:");
+  // console.log(routeData);
+
   return (
     <>
       <FromToVia
@@ -85,11 +110,22 @@ export default function StartToVia({ instructions, stationNames }) {
         to={stationNames.end}
         vias={stationNames.vias}
       />
-      <ul>
+      <ul id="all-instruction-legs">
         {instructions.map((instruction, index) => (
-          <Instruction key={index} instruction={instruction} />
+          <Instruction
+            key={index}
+            instruction={instruction}
+            routeData={routeData[index]}
+            feedbackMode={feedbackMode}
+            sid={sid}
+          />
         ))}
       </ul>
+
+      <MainFeedbackButton
+        feedbackMode={feedbackMode}
+        setFeedbackMode={setFeedbackMode}
+      />
     </>
   );
 }

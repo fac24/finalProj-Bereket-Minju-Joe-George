@@ -2,61 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+/* @layer base {
+  h1 {
+    @apply text-3xl;
+  }
+  h2 {
+    @apply text-xl;
+  }
+  h3 {
+    @apply text-lg;
+  }
+} */
+
 /* TfL colours */
 /* source - https://techforum.tfl.gov.uk/t/how-can-i-get-the-colours-for-each-line/2063/2 */
 .piccadilly {
-  background: #0019A8;
-  color: white
+  background: #0019a8;
+  color: white;
 }
 
 .bakerloo {
-  background: #B26313;
-  color: #fff
+  background: #b26313;
+  color: #fff;
 }
 
 .central {
-  background: #DC241F;
-  color: white
+  background: #dc241f;
+  color: white;
 }
 
 .circle {
-  background: #FFD329;
-  color: #0019A8
+  background: #ffd329;
+  color: #0019a8;
 }
 
 .district {
-  background: #007D32;
-  color: white
+  background: #007d32;
+  color: white;
 }
 
 .hammersmith-city {
-  background: #F4A9BE;
-  color: #0019A8
+  background: #f4a9be;
+  color: #0019a8;
 }
 
 .jubilee {
-  background: #A1A5A7;
-  color: white
+  background: #a1a5a7;
+  color: white;
 }
 
 .metropolitan {
-  background: #9B0058;
-  color: white
+  background: #9b0058;
+  color: white;
 }
 
 .northern {
   background: #000;
-  color: #fff
+  color: #fff;
 }
 
 .victoria {
-  background: #0098D8;
-  color: white
+  background: #0098d8;
+  color: white;
 }
 
 .waterloo-city {
-  background: #93CEBA;
-  color: #0019A8
+  background: #93ceba;
+  color: #0019a8;
 }
 
 /* End of TfL colours */
@@ -67,4 +79,20 @@
 
 #new-route-form > * + * {
   margin-top: 1rem;
+}
+
+.instruction-container > * + * {
+  margin-top: 0.5rem;
+}
+
+.feedback-forms-container {
+  margin-top: 0.5rem;
+}
+
+.feedback-forms-container > * + * {
+  margin-top: 0.25rem;
+}
+
+.feedback-forms-container form {
+  max-width: fit-content;
 }
