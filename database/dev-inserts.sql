@@ -30,14 +30,14 @@ INSERT INTO platform_line (platform_id, line_id) VALUES
   (11, 'central'),
   (12, 'central');
 
-INSERT INTO platform_exits (platform_id, carriage_from_front, door_from_front, type) VALUES
-  (1, 7, 2, 2), -- kings x circ/hm/met west
-  (4, 4, 2, 1), -- ox circ central east
-  (6, 2, 1, 0), -- vic vic southu
-  (7, 4, 4, 0), -- fins park vic north
-  (9, 3, 1, 1), -- eus northern south
-  (5, 6, 3, 1), -- ox circ vic south
-  (12, 1, 1, 0)
+INSERT INTO platform_exits (platform_id, carriage_from_front, door_from_front, type, correct_votes, total_votes) VALUES
+  (1, 7, 2, 2, 1, 1), -- kings x circ/hm/met west
+  (4, 4, 2, 1, 1, 1), -- ox circ central east
+  (6, 2, 1, 0, 1, 1), -- vic vic southu
+  (7, 4, 4, 0, 1, 1), -- fins park vic north
+  (9, 3, 1, 1, 1, 1), -- eus northern south
+  (5, 6, 3, 1, 1, 1), -- ox circ vic south
+  (12, 1, 1, 0, 1, 1)
   ;
 
 INSERT INTO exit_interchanges (platform_exit_id, dest_platform_id) VALUES 
