@@ -114,7 +114,7 @@ export default function StartToVia({
       {instructions[0]?.line_id === undefined ? (
         <>
           <p className="text-lg border mt-4 p-2 border-red-300 bg-red-50">
-            Sorry, we don't have any train exit advice for this route yet 😔
+            Sorry, we do not have any train exit advice for this route yet 😔
           </p>
           {/*
           <p className="text-lg border mt-4 p-2 border-green-300 bg-green-50">
