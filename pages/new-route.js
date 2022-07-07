@@ -52,63 +52,84 @@ export default function NewRoute({
       <>
         <FromToVia from={startEndNames.start} to={startEndNames.end} />
         <ul id="all-possible-routes">
-          {apiResponseData.journeys.map(
-            (
-              journey,
-              index // take dataResponse.journeys to map journey and render as list items
-            ) => {
-              const href = journey.legs.map(
-                (leg) =>
-                  `${leg.departurePoint.individualStopId},${leg.arrivalPoint.individualStopId}`
-              );
-              return (
-                <li className="my-4 border route-option" key={index}>
-                  <form
-                    key={index}
-                    action="../api/add-saved-route"
-                    method="POST"
-                    className="route-option-form flex p-4 cursor-pointer"
-                    onClick={(event) => event.currentTarget.submit()}
-                  >
-                    <input
-                      type="hidden"
-                      name="href"
-                      value={`/show-route?startStationNaptan=${
-                        urlParams.startStation
-                      }&endStationNaptan=${
-                        urlParams.endStation
-                      }&viaStationNaptans=${journey.legs.map(
-                        (leg, index, arr) => {
-                          if (index !== arr.length - 1) {
-                            return leg.arrivalPoint.naptanId;
+          {apiResponseData.journeys
+            .filter((journey, index, arr) => {
+              if (
+                journey.legs[0].mode.id === "walking" &&
+                journey.legs.length === 1
+              )
+                return false;
+              return true;
+            })
+            .filter((journey, index, arr) => {
+              for (let i = index + 1; i < arr.length; i++) {
+                for (let j = 0; j < journey.legs.length; j++) {
+                  if (
+                    journey.legs[j]?.path.lineString ===
+                    arr[i].legs[j]?.path.lineString
+                  )
+                    return false;
+                }
+              }
+              return true;
+            })
+            .map(
+              (
+                journey,
+                index // take dataResponse.journeys to map journey and render as list items
+              ) => {
+                const href = journey.legs.map(
+                  (leg) =>
+                    `${leg.departurePoint.individualStopId},${leg.arrivalPoint.individualStopId}`
+                );
+                return (
+                  <li className="my-4 border route-option" key={index}>
+                    <form
+                      key={index}
+                      action="../api/add-saved-route"
+                      method="POST"
+                      className="route-option-form flex p-4 cursor-pointer"
+                      onClick={(event) => event.currentTarget.submit()}
+                    >
+                      <input
+                        type="hidden"
+                        name="href"
+                        value={`/show-route?startStationNaptan=${
+                          urlParams.startStation
+                        }&endStationNaptan=${
+                          urlParams.endStation
+                        }&viaStationNaptans=${journey.legs.map(
+                          (leg, index, arr) => {
+                            if (index !== arr.length - 1) {
+                              return leg.arrivalPoint.naptanId;
+                            }
                           }
-                        }
-                      )}&individualStopIds=${href.join(",")}`}
-                    />
-                    <div className="mr-4">
-                      {journey.legs.map(
-                        (
-                          leg,
-                          index // map data to list journey
-                        ) => (
-                          // Todo: replace these text labels with colourful rectangles :)
-                          // Use the line name as hidden text for a11y
-                          // Maybe use a table so we can vertically align interchanges and lines.
-                          <div key={index}>
-                            <HiddenInputs leg={leg} />
-                          </div>
-                        )
-                      )}
-                      <JourneyBox
-                        journey={journey}
-                        startEndNames={startEndNames}
+                        )}&individualStopIds=${href.join(",")}`}
                       />
-                    </div>
-                  </form>
-                </li>
-              );
-            }
-          )}
+                      <div className="mr-4">
+                        {journey.legs.map(
+                          (
+                            leg,
+                            index // map data to list journey
+                          ) => (
+                            // Todo: replace these text labels with colourful rectangles :)
+                            // Use the line name as hidden text for a11y
+                            // Maybe use a table so we can vertically align interchanges and lines.
+                            <div key={index}>
+                              <HiddenInputs leg={leg} />
+                            </div>
+                          )
+                        )}
+                        <JourneyBox
+                          journey={journey}
+                          startEndNames={startEndNames}
+                        />
+                      </div>
+                    </form>
+                  </li>
+                );
+              }
+            )}
         </ul>
       </>
     );
