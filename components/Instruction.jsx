@@ -8,17 +8,9 @@ export default function Instruction({
 }) {
   const [correctFeedback, setCorrectFeedback] = useState(false);
 
-  function feedbackCorrect(obj) {
-    // console.log(obj);
-    // fetch("/api/feedback", { method: "POST", body: JSON.stringify(obj) })
-    //   .then((resolve) => resolve.json())
-    //   .then((resolve) => console.log(resolve));
-  }
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log("form submitted");
-
     // Get the data from the form
     const data = {
       platform_exits_id: event.target.platform_exits_id.value,
@@ -27,6 +19,7 @@ export default function Instruction({
       train_direction: event.target.train_direction.value,
       side: event.target.side.value,
       sid: event.target.sid.value,
+      correct: event.target.correct.value,
     };
 
     // Send the data to the server in JSON format.
@@ -93,29 +86,37 @@ export default function Instruction({
             />
             <input type="hidden" name="side" value={instruction.side} />
             <input type="hidden" name="sid" value={sid.sid} />
+            <input type="hidden" name="correct" value="true" />
             <button
               type="submit"
               className="border rounded shadow-md bg-green-300 px-2 py-1"
-              onClick={() =>
-                feedbackCorrect({
-                  carriage: instruction.carriage,
-                  door: instruction.door,
-                  train_direction: instruction.train_direction,
-                  side: instruction.side,
-                  sid: sid,
-                  station_common_name: instruction.stationStart[0],
-                })
-              }
             >
               Yes, this worked
             </button>
           </form>
-          <button
-            type="button"
-            className="border rounded shadow-md bg-red-300 px-2 py-1"
-          >
-            No, this was wrong
-          </button>
+          <form method="post" onSubmit={handleSubmit}>
+            <input
+              type="hidden"
+              name="platform_exits_id"
+              value={routeData.id}
+            />
+            <input type="hidden" name="carriage" value={instruction.carriage} />
+            <input type="hidden" name="door" value={instruction.door} />
+            <input
+              type="hidden"
+              name="train_direction"
+              value={instruction.train_direction}
+            />
+            <input type="hidden" name="side" value={instruction.side} />
+            <input type="hidden" name="sid" value={sid.sid} />
+            <input type="hidden" name="correct" value="false" />
+            <button
+              type="submit"
+              className="border rounded shadow-md bg-red-300 px-2 py-1"
+            >
+              No, this was wrong
+            </button>
+          </form>
         </div>
       ) : null}
     </li>

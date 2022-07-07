@@ -165,19 +165,50 @@ async function getTrainDirectionFromIndividualStopPoints(stopIds) {
   return trainDirections.rows;
 }
 
-async function addCorrectFeedback(sid, platform_exits_id) {
+async function getVote(sid, platform_exit_id) {
+  const SELECT_VOTE = /*SQL*/ `SELECT correct FROM sid_correct_votes WHERE sid = $1 AND platform_exit_id = $2`;
+  const correct = db
+    .query(SELECT_VOTE, [sid, platform_exit_id])
+    .then((resolve) => resolve.rows[0]);
+  return correct;
+}
+
+async function addFeedback(sid, platform_exits_id, correct) {
   const UPDATE_FEEDBACK = /*SQL*/ `
     UPDATE platform_exits
-    SET correct_votes = correct_votes + 1, total_votes = total_votes + 1
-    WHERE id = $1
+    SET correct_votes = correct_votes + $1, total_votes = total_votes + 1 
+    --total votes always increases
+    --correct votes only increases for true
+    WHERE id = $2
   `;
   const INSERT_FEEDBACK = /*SQL*/ `
-    INSERT INTO sid_correct_votes (sid, platform_exit_id) VALUES ($1, $2)
+    INSERT INTO sid_correct_votes (sid, platform_exit_id, correct) VALUES ($1, $2, $3)
   `;
-
+  const voteAdd = correct ? 1 : 0;
   await Promise.all([
-    db.query(INSERT_FEEDBACK, [sid, platform_exits_id]),
-    db.query(UPDATE_FEEDBACK, [platform_exits_id]),
+    db.query(INSERT_FEEDBACK, [sid, platform_exits_id, correct]),
+    db.query(UPDATE_FEEDBACK, [voteAdd, platform_exits_id]),
+  ]);
+}
+
+async function updateFeedback(sid, platform_exit_id, correct) {
+  const UPDATE_VOTE = /*SQL*/ `
+    UPDATE platform_exits 
+    SET correct_votes = correct_votes + $1 
+    -- the total number of votes hasn't changed so we don't update that
+    WHERE id = $2
+    `;
+  // True increases votes by 1
+  // False decrease votes by 1
+  const addVote = correct ? 1 : -1;
+  const UPDATE_FEEDBACK = /*SQL*/ `
+    UPDATE sid_correct_votes
+    SET correct = NOT correct
+    WHERE sid = $1 AND platform_exit_id = $2
+  `;
+  await Promise.all([
+    db.query(UPDATE_VOTE, [addVote, platform_exit_id]),
+    db.query(UPDATE_FEEDBACK, [sid, platform_exit_id]),
   ]);
 }
 
@@ -248,7 +279,9 @@ module.exports = {
   getStationCommonNamesFromNaptans,
   getPlatformDataFromIndividualStopPoints,
   getTrainDirectionFromIndividualStopPoints,
-  addCorrectFeedback,
+  getVote,
+  addFeedback,
+  updateFeedback,
   postSavedRoute,
   deleteSavedRoute,
 };

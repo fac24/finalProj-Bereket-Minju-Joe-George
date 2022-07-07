@@ -50,8 +50,8 @@ CREATE TABLE platform_exits (
   carriage_from_front INTEGER NOT NULL, -- from front of train. 1 indexed, i.e. the first carriage is number 1
   door_from_front INTEGER NOT NULL, -- from front of carriage. Also 1 indexed
   type INTEGER NOT NULL, -- 0 = exit, 1 = interchange, 2 = both?. (Future-proof? e.g. 3 = lift, etc.)
-  correct_votes INTEGER NOT NULL,
-  total_votes INTEGER NOT NULL
+  correct_votes INTEGER NOT NULL, -- number of correct votes for this platform_exit
+  total_votes INTEGER NOT NULL -- # of correct votes for this exit + # of incorrect votes
 );
 
 CREATE TABLE exit_interchanges (
@@ -108,7 +108,8 @@ CREATE TABLE session_routes (
 
 CREATE TABLE sid_correct_votes (
   sid TEXT REFERENCES sessions (sid) NOT NULL,
-  platform_exit_id INTEGER REFERENCES platform_exits (id) NOT NULL
+  platform_exit_id INTEGER REFERENCES platform_exits (id) NOT NULL,
+  correct BOOLEAN NOT NULL
 );
 
 -- Creating idx function that will order the return based on the input of the array rather than by the id
