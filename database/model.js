@@ -148,7 +148,7 @@ async function getPlatformDataFromIndividualStopPoints(stopIds) {
     FROM platforms, lines, platform_line
     WHERE (lines.id = platform_line.line_id AND platforms.id = platform_line.platform_id)
     AND platforms.individual_stop_id = ANY ($1)
-    ORDER BY idx($1, station_naptan)
+    ORDER BY idx($1, platforms.individual_stop_id)
   `;
   const platformData = await db.query(SELECT_PLATFORM_DATA, [stopIds]);
   return platformData.rows;
@@ -159,7 +159,7 @@ async function getTrainDirectionFromIndividualStopPoints(stopIds) {
     SELECT train_direction
     FROM platforms
     WHERE individual_stop_id = ANY ($1)
-    ORDER BY idx($1, station_naptan)
+    ORDER BY idx($1, individual_stop_id)
   `;
   const trainDirections = await db.query(SELECT_TRAIN_DIRECTION, [stopIds]);
   return trainDirections.rows;
@@ -188,7 +188,7 @@ async function deleteSavedRoute(routeId, sid) {
   const route_id = await db
     .query(DELETE_ROUTE_FROM_session_routes, [routeId, sid])
     .then((resolve) => resolve.rows[0].route_id);
-  // This next bit is to check if any other sid has the same route and if so will go on to delete it from the routes table
+  // This next bit is to check if any other sid has the same route and if so will NOT delete it from the routes table
   const SELECT_ROUTE_BY_ID = /*SQL*/ `SELECT route_id FROM session_routes WHERE route_id = $1`;
   const othersWithRoute = await db
     .query(SELECT_ROUTE_BY_ID, [route_id])
@@ -196,7 +196,7 @@ async function deleteSavedRoute(routeId, sid) {
 
   const DELETE_ROUTE_FROM_routes = /*SQL*/ `DELETE FROM routes WHERE id = $1`;
   if (othersWithRoute.length === 0) {
-    db.query(DELETE_ROUTE_FROM_routes, [route_id]);
+    await db.query(DELETE_ROUTE_FROM_routes, [route_id]);
   }
 }
 
