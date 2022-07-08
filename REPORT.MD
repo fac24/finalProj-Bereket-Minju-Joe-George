@@ -1,3 +1,5 @@
+# FAC24 final project report (REPORT.MD)
+
 <!--
 
 Here are two guides from FAC describing what this report should contain:
@@ -80,6 +82,13 @@ Here are two guides from FAC describing what this report should contain:
 - Saved routes has been moved up to between "Find my location" and Carriage/door recommendation
 - A start has been made on both carriage/door and saved routes recommendation with the latter being almost complete
 
+#### After Week 2 Sprint
+- Saved routes got finished
+- The route information was finished
+- Design, testing and deployment got done
+- Feedback was complete to a point of upvoting and downvoting but not including adding the the corrective feedback
+- error handling for when no routes/partial routes
+
 ### ~~How will you delegate work?~~
 
 **<mark>(this heading has been removed, but we could consider it merged with the sprint structure one above)</mark>**
@@ -118,7 +127,8 @@ ___
 
 
 #### What would you do differently next time?
-
+- Deployment will be done in earlier building stage for checking everything is good with team's tech packs.
+- Consider test driven development - test as we build
 
 
 ## Research and findings
@@ -126,8 +136,6 @@ ___
 **<mark>(new heading added, but seems to duplicate the new heading about user research above, which is in a better position in the document, so let's ignore this one?)</mark>**
 
 ### What did you find out from user testing?
-
-
 
 ## Project outcomes
 
@@ -139,11 +147,12 @@ ___
 ### Recommendations and conclusions
 
 #### What features would you prioritise to build next?
-
+- Database related feature: Approach database and related services in more expectable & efficient way(testing with cypress first will be good idea).
 
 #### Was the project a success?
 
-
+- Collaborated effectively, paired as often as possible and delivered somewhat functional app.
+- Managed to complete the tasks set out during sprint planning as well so it can be said that the project was a success. 
 ___
 
 
@@ -163,6 +172,7 @@ ___
 
 - What might be the intended and unintended consequences of building this product?
 
+
 ### Design
 
 - How did you plan a user experience?
@@ -181,13 +191,19 @@ ___
 
 > Create logical and maintainable code to deliver project outcomes, explaining their choice of approach. (S1)
 
+Modularising, functions, separation of concerns. Using reliable-looking packages for stuff that was beyond the scope (e.g. react-select) of our dev work.
+
 - What interesting technical problems did you have to solve?
 
 > Outline and apply the rationale and use of algorithms, logic and data structures. (K9, S16)
 
+Deciding on a data structure! Relating platforms and their possible exit points with onward destinations.
+
 - How did you debug issues that arose?
 
 > Apply structured techniques to problem solving to identify and resolve issues and debug basic flaws in code (S7)
+
+Logging values in different places, 
 
 ### Test
 
@@ -195,9 +211,13 @@ ___
 
 > Identify and create test scenarios which satisfy the project specification (S6)
 
+Mostly manual testing.
+
 - Did writing automated tests catch any bugs?
 
 > Analyse unit testing results and review the outcomes, correcting errors. (S4)
+
+No.
 
 ### Deploy
 
@@ -205,9 +225,26 @@ ___
 
 > Review and justify their contribution to building, managing and deploying code into the relevant environment in accordance with the project specification (S10)
 
+Vercel.
+
 - What problems did you encounter during deployment?
+
+Vercel requires a paid plan to import from organisational GitHub repos (which our FAC24 final project repo is).
+ - It's possible to start a 14-day trial of a paid plan.
+ - But to avoid this, we cloned/forked the FAC24 repo to one of our personal GitHub accounts.
+ - And then we imported that personal repo to Vercel.
+ - Naturally this adds a step to deployment (pull the latest FAC24 repo main to our personal repo main). But the rest is automatic.
+
+ElephantSQL free tier has a limit of 5 simultaneous connections.
+ - Our app makes at least this many, and possibly a lot more (lots of concurrent DB queries).
+ - A simple node-postgres config change didn't fix it.
+ - We probably need to make some more significant changes to the node-postgres setup for our project.
+ - This might slow down the UX when accessing the deployed site on free hosting.
 
 ### Maintain
 
 - Is it easy for someone make changes to the codebase?
+
 - Could a new person quickly be onboarded to contribute?
+
+Relatively? There's a decent amount of OK comments. But not enough documentation, especally about the architecture. All needs work!
