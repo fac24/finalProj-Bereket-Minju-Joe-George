@@ -6,6 +6,7 @@ if (!process.env.DATABASE_URL) {
 
 const db = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
+  max: 5,
 });
 
 module.exports = db;
