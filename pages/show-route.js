@@ -70,7 +70,7 @@ export async function getServerSideProps(params) {
       line_name: departingPlatformData[index]?.line_name || null,
       line_direction: departingPlatformData[index]?.line_direction || null,
       train_direction: departingPlatformData[index]?.train_direction || null,
-      side: side,
+      side: side || null,
     };
   });
 
