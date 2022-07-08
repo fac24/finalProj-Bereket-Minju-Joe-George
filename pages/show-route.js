@@ -47,13 +47,14 @@ export async function getServerSideProps(params) {
     getStationCommonNamesFromNaptans(vias).then(toCommonNameShort),
     getPlatformDataFromIndividualStopPoints(departingPlatformIsds),
     getTrainDirectionFromIndividualStopPoints(arrivingPlatformIsds),
-    getRouteByIndividualStopIds(platforms),
+    getRouteByIndividualStopIds(platforms).then((resolve) =>
+      resolve.filter((el) => el !== undefined)
+    ),
   ]);
 
   // console.log("\n\nmy log\n\n");
   // console.log(routeData);
   // console.log("\n\nend of my log\n\n");
-
   const stationStarts = [startStationCommonName, ...viaStationsCommonNames];
 
   const instructions = routeData.map((instruction, index) => {
@@ -124,6 +125,12 @@ export default function StartToVia({
         </>
       ) : (
         <>
+          {/* This checks if routeData returned any undefined that has been filtered */}
+          {routeData.length !== stationNames.vias.length + 1 ? (
+            <p className="border mt-4 p-2 border-orange-300 bg-orange-50">
+              Only some available exit data is available
+            </p>
+          ) : null}
           <ul id="all-instruction-legs">
             {instructions.map((instruction, index) => (
               <Instruction
