@@ -1,6 +1,8 @@
 import { getOrCreateSid } from "../helpers/cookie";
+import { removeExcessUnderground } from "../components/functions.js";
 import FromToVia from "../components/FromToVia";
 import HiddenInputs from "../components/HiddenInputs";
+import JourneyBox from "../components/JourneyBox";
 
 const baseJourneyURL = "https://api.tfl.gov.uk/Journey/JourneyResults/";
 
@@ -22,12 +24,8 @@ export async function getServerSideProps(params) {
   const apiResponseData = await fetch(url).then((resolve) => resolve.json());
   const firstLeg = apiResponseData.journeys[0].legs;
   const startEndNames = {
-    start: firstLeg[0].departurePoint.commonName
-      .replace(" Underground Station", "")
-      .replace(" Underground Stn", ""),
-    end: firstLeg[firstLeg.length - 1].arrivalPoint.commonName
-      .replace(" Underground Station", "")
-      .replace(" Underground Stn", ""),
+    start: removeExcessUnderground(firstLeg[0].departurePoint),
+    end: removeExcessUnderground(firstLeg[firstLeg.length - 1].arrivalPoint),
   };
   return { props: { apiResponseData, urlParams, startEndNames } };
 }
@@ -119,32 +117,14 @@ export default function NewRoute({
                             // Maybe use a table so we can vertically align interchanges and lines.
                             <div key={index}>
                               <HiddenInputs leg={leg} />
-                              <span
-                                className={
-                                  leg.routeOptions[0].lineIdentifier?.id +
-                                  " block px-1.5 py-1"
-                                }
-                              >
-                                {leg.routeOptions[0].lineIdentifier?.name}
-                              </span>
                             </div>
                           )
                         )}
+                        <JourneyBox
+                          journey={journey}
+                          startEndNames={startEndNames}
+                        />
                       </div>
-                      <ul>
-                        {journey.legs.map((leg, index, arr) =>
-                          leg.routeOptions[0].lineIdentifier?.id ===
-                          undefined ? null : arr.length === 1 ? (
-                            <li key={index}>Direct</li>
-                          ) : /* <li key={index}>{leg.instruction.summary}</li> */
-                          // For all legs except the last, print the arrival station name,
-                          // as this is equivalent to the "interchange" stop.
-                          // (The arrival station of leg 1 will be the same as the departure station of leg 2, etc.)
-                          index !== arr.length - 1 ? ( // if this is the last leg then list journey leg arrivalPoint name
-                            <li key={index}>{leg.arrivalPoint.commonName}</li>
-                          ) : null
-                        )}
-                      </ul>
                     </form>
                   </li>
                 );

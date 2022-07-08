@@ -47,13 +47,14 @@ export async function getServerSideProps(params) {
     getStationCommonNamesFromNaptans(vias).then(toCommonNameShort),
     getPlatformDataFromIndividualStopPoints(departingPlatformIsds),
     getTrainDirectionFromIndividualStopPoints(arrivingPlatformIsds),
-    getRouteByIndividualStopIds(platforms),
+    getRouteByIndividualStopIds(platforms).then((resolve) =>
+      resolve.filter((el) => el !== undefined)
+    ),
   ]);
 
   // console.log("\n\nmy log\n\n");
   // console.log(routeData);
   // console.log("\n\nend of my log\n\n");
-
   const stationStarts = [startStationCommonName, ...viaStationsCommonNames];
 
   const instructions = routeData.map((instruction, index) => {
@@ -70,7 +71,7 @@ export async function getServerSideProps(params) {
       line_name: departingPlatformData[index]?.line_name || null,
       line_direction: departingPlatformData[index]?.line_direction || null,
       train_direction: departingPlatformData[index]?.train_direction || null,
-      side: side,
+      side: side || null,
     };
   });
 
@@ -114,7 +115,7 @@ export default function StartToVia({
       {instructions[0]?.line_id === undefined ? (
         <>
           <p className="text-lg border mt-4 p-2 border-red-300 bg-red-50">
-            Sorry, we don't have any train exit advice for this route yet 😔
+            Sorry, we do not have any train exit advice for this route yet 😔
           </p>
           {/*
           <p className="text-lg border mt-4 p-2 border-green-300 bg-green-50">
@@ -124,6 +125,12 @@ export default function StartToVia({
         </>
       ) : (
         <>
+          {/* This checks if routeData returned any undefined that has been filtered */}
+          {routeData.length !== stationNames.vias.length + 1 ? (
+            <p className="border mt-4 p-2 border-orange-300 bg-orange-50">
+              Only some available exit data is available
+            </p>
+          ) : null}
           <ul id="all-instruction-legs">
             {instructions.map((instruction, index) => (
               <Instruction
